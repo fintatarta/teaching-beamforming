@@ -1,5 +1,6 @@
 with "gnoga";
 -- with "portaudioada";
+with "Pulsada/pulsada";
 with "Tokenizer/tokenizer";
 with "ALSA/ALSA-binding/alsa_binding";
 
