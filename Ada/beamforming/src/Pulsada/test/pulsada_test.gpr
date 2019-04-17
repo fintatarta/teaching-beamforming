@@ -1,0 +1,8 @@
+project Pulsada_Test is
+
+   for Source_Dirs use ("src", "../src", "../src/pulse");
+   for Object_Dir use "obj";
+   for Main use ("pulsada_test-main.adb");
+
+end Pulsada_Test;
+

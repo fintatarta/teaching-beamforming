@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://fintatarta@github.com/fintatarta/pulsada.git
+	branch = development
+	commit = 043ab895a8cf3b4b491dcf30ca2693de54daf2da
+	parent = bf472dda0a7d95d0ee873b7e1265c0bd5f681cff
+	method = merge
+	cmdver = 0.4.0
