@@ -1,0 +1,350 @@
+\documentclass[11pt]{article}
+
+\usepackage[pdfborder={1 1 0}, colorlinks=true]{hyperref}
+\usepackage{amsmath}
+\usepackage{amsbsy}
+\usepackage{amssymb}
+\usepackage{amsthm,amsfonts}
+\usepackage{epsf,epsfig}
+\usepackage{times}
+\usepackage{mathptmx}
+\usepackage{color}
+\usepackage{nomelabel}
+\usepackage[english]{babel}
+\usepackage{srcltx}
+\usepackage[boxed]{algorithm2e}
+\usepackage{ifpdf}
+%
+% Standard definitions...
+%
+\input{def}
+%
+% True document
+%
+\newcommand{\wv}{\bfk}
+\newcommand{\wvn}{\hat\wv}
+\newcommand{\x}[1][0]{\ifcase #1\bfp \or\bfq\else x#1\fi}
+\newcommand{\sig}[1][\x,t]{s({#1})}
+\newcommand{\out}[1][t]{o({#1})}
+\newcommand{\coeff}[1][\x]{a\parasenondot{#1}}
+\newcommand{\Coeff}[1][\wv]{A\parasenondot{#1}}
+\newcommand{\lcoeff}[1]{h\sedotelse{#1}{}{({#1}\Delta)}}
+\newcommand{\Lcoeff}[1]{H\parasenondot{#1}}
+\newcommand{\filt}[1][\x,nT]{a\parasenondot{#1}}
+\newcommand{\Filt}[1][\wv,f]{A\parasenondot{#1}}
+
+\title{Notes on beamforming}
+\author{Riccardo Bernardini\\\email{riccardo.bernardini@uniud.it}
+\\  \url{https://www.linkedin.com/in/riccardobernardini/}}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+In this short document we study the problem of beamforming: we have an
+array of \emph{isotropic} sensors (e.g., microphones or antennas)
+positioned on the points of lattice $\Lambda \subset \reali^3$ and we
+mix the output of the sensors with suitable weights in order to create
+a \emph{virtual sensor}.  We want to analyze the dependence of the
+behavior of the virtual sensor from the weight used for the mixing.
+By working in the far-field approximation we show how the problem of
+beamforming design can be reduced to a filter design problem.
+\end{abstract}
+
+\tableofcontents
+
+
+
+
+\section{Far field approximation and plane waves}
+\label{sect:0;beamforming-notes}
+
+We want to study the problem of beamforming: given an array of
+\emph{isotropic} sensors positioned on the points of lattice
+$\Lambda$, we mix the output of the sensors with suitable weights in
+order to create a \emph{virtual sensor}.  We want to analyze the
+dependence of the behavior of the virtual sensor from the weight used
+for the mixing.
+
+We will work, for the sake of simplicity, the \emph{far field
+  approximation}.  More precisely, we will suppose that there is a
+source that emits complex sinusoidal waves and it is so far away that
+the wave we receive can be approximated with a \emph{plane wave}. In
+other words, the signal we ``see'' in position $\bfp \in\reali^3$ at
+time $t \in \reali$ is
+%
+\begin{equation}
+  \label{eq:1;beamforming-notes}
+  \begin{split}
+    \sig &=
+    A \exp\left[-j 2\pi (\wv^t\x-ft + \phi) \right]\\
+    &=C_\phi \exp\left[-j 2\pi (\wv^t\x-ft) \right]\\
+    &=C_\phi \exp\left(-j 2\pi \wv^t\x \right)
+    \exp\left(j 2\pi ft\right)\\
+  \end{split}
+\end{equation}
+%
+where $C_\phi = A \exp(-j2\pi \phi)$ encodes both phases and amplitude
+of the signal.  Since everything we will do in the following will be
+linear, we will just omit $C_\phi$ (that can be added at the end) in
+order to simplify the notation.  The last line of
+\er{eq:1;beamforming-notes} shows the space and time ``components''
+separated. It is worth to discuss briefly the meaning of $f$ and
+$\wv$.
+
+\paragraph{Meaning of $f$ and $\wv$} By thinking
+\er{eq:1;beamforming-notes} at a fixed position $\x$, it 
+is immediate to recognize that $f$ is the frequency and it has units
+of the inverse of time (e.g., Hertz if time is measured in seconds).
+It is also immediate to recognize that $\sig$ is constant along the
+planes orthogonal to \emph{wavevector} $\wv$. Indeed, if $\bfr$ is
+orthogonal to $\wv$, that is, $\wv^t\bfr=0$, then
+%
+\begin{equation}
+  \label{eq:2;beamforming-notes}
+  \begin{split}
+\exp\left(-j 2\pi \wv^t(\x+\bfr) \right)
+&= \exp\left(-j 2\pi \wv^t\x \right)
+\exp\left(-j 2\pi \wv^t\bfr \right)\\
+&= \exp\left(-j 2\pi \wv^t\x \right)
+  \end{split}
+\end{equation}
+%
+  The wavelength $\lambda$, measured along the direction of $\wv$ is
+  equal to $\lambda=1/\norma\wv$.  Indeed, let $\wvn = \wv/\norma\wv$
+  be the versor associated to $\wv$ and suppose we move from $\x$ by a
+  distance $\lambda$ along $\wvn$ arriving in $\x+\lambda\wvn$.  It
+  turns out that the argument of the exponential is
+%
+\begin{equation}
+\label{eq:3;beamforming-notes}
+\begin{split}
+  2\pi \wv^t(\x+\lambda\wvn)
+  &=   2\pi \wv^t\x+2\pi\;\wv^t \lambda\wvn\\
+  &=   2\pi \wv^t\x+2\pi\wv^t \commenta{\frac{1}{\norma\wv}}{\lambda}
+  \commenta{\frac{\wv}{\norma\wv}}{\wvn} \\
+  &=   2\pi \wv^t\x+2\pi \lambda\frac{\wv^t\wv}{\norma\wv^2}\\
+  &=   2\pi \wv^t\x+2\pi
+\end{split}
+\end{equation}
+%
+That is, by moving along $\wvn$ by a distance of $\lambda=1/\norma\wv$, the
+argument of the exponential changes by $2\pi$, showing that we moved
+by a wavelength.  Therefore, \emph{wavevector $\wv$ encodes both
+  direction and wavelength}.
+
+
+\paragraph{Relationship between frequency $f$ and wavevector $\wv$}
+As well known, the velocity $v$ of a wave can be written as $v=\lambda
+f$. In many cases, physical waves have a fixed velocity (e.g., sound,
+light), therefore,   $\lambda$ (and, consequently, the length
+of $\wv$) depends on $f$.  More precisely, one can write
+%
+\begin{equation}
+\label{eq:4;beamforming-notes}
+\wv = \wvn\; \frac{f}{v}
+\end{equation}
+%
+that is, if velocity $v$ is fixed, the length of the wavevector $\wv$ is
+directly proportional to frequency $f$.
+
+\section{Beamforming}
+\label{sect:1;beamforming-notes}
+
+Suppose that we have \emph{isotropic} sensors placed on the points of
+a lattice $\Lambda \subset \reali^3$.  We combine the output of the
+sensors by weighting the output of the sensor in $\x \in \Lambda$
+with weight $\coeff\in\complessi$ and adding the result.
+
+\begin{commento}
+  Note that this setup can be used even if the sensors are
+  irregularly spaced, as long as the set of positions $S \subset\reali^3$ where
+  sensors are placed is the subset of a suitable lattice $\Lambda$: we
+  will just assign zero weight to the lattice locations that have no
+  sensor.
+
+  The hypothesis that $S$ is a subset of some lattice is quite
+  ``cheap.'' Indeed, it is easy to show that it suffices that the
+  coordinates of the points in $S$ are rationally related, that is, it
+  is true that
+  %
+\begin{equation}
+\label{eq:0;beamforming-notes}
+\forall p,q \in S,  n \in \{1, 2, 3\}
+\quad p_n=0 \vee q_n/p_n \in \razionali
+\end{equation}
+%
+If $S$ does not satisfy \er{eq:0;beamforming-notes}, it suffices to
+change its elements a tiny bit (that can be as small as desired) to
+make \er{eq:0;beamforming-notes} true.  Therefore, from a practical
+viewpoint, we can always suppose \er{eq:0;beamforming-notes} without
+much loss of generality.
+\end{commento}
+
+Remembering that $\sig$ is the signal at position $\x$ at time $t$,
+the output at time $t$ of the virtual sensor is
+%
+\begin{equation}
+\label{eq:5;beamforming-notes}
+\out = \sum_{\x \in \Lambda} \coeff \sig
+\end{equation}
+%
+that, remembering \er{eq:1;beamforming-notes}, gives
+%
+\begin{equation}
+\label{eq:6;beamforming-notes}
+\begin{split}
+  \out &= \sum_{\x \in \Lambda} \coeff \exp\left(-j 2\pi \wv^t\x \right)
+    \exp\left(j 2\pi ft\right)\\
+   &= \exp\left(j 2\pi ft\right) \sum_{\x \in \Lambda} \coeff
+    \exp\left(-j 2\pi \wv^t\x \right) 
+    \\
+    &= \exp\left(j 2\pi ft\right) \Coeff \\
+    &= \exp\left(j 2\pi ft\right) \Coeff[.]\left(\frac{f\;\wvn}{v} \right)
+\end{split}
+\end{equation}
+%
+In other words, the output of the weighted sum is a complex
+exponential at frequency $f$ multiplied by $\Coeff$, the Fourier
+transform of $\coeff[.]$ evaluated in $\wv$. The last line of
+\er{eq:6;beamforming-notes} show explicitely the dependence on the
+direction versor $\wvn$ and the frequency $f$.
+
+Result \er{eq:6;beamforming-notes} is interesting because it reduces
+the problem of determining coefficients $\coeff$ to the problem of
+designing a 3-dimensional filter with a desired frequency response.
+
+\subsection{The 1-dimensional case: sensor array}
+\label{sub:1.0;beamforming-notes}
+
+A case that is quite common is when the sensor are on a single line.
+Without loss of generality, we can think that they are aligned along
+the first axis at distance $\Delta$.  A suitable lattice is the
+orthogonal lattice
+%
+\begin{equation}
+\label{eq:12;beamforming-notes}
+\Lambda=\interi^3(\Delta) = \left\{\vciii{n_1\Delta}{ n_2\Delta}{
+  n_3\Delta} |  \; n_1,
+n_2, n_3 \in \interi\right\}
+\end{equation}
+%
+Let
+$\lcoeff n$ be the coefficient of the sensor placed in position
+$n\Delta$ along the first axis, that is, in $[n\Delta, 0,
+  0]$. Coefficient $\coeff$, $\x=[ n_1\Delta, n_2\Delta, n_3\Delta]
+\in \Lambda$ can be written as
+%
+\begin{equation}
+\label{eq:7;beamforming-notes}
+\coeff[n_1\Delta, n_2\Delta, n_3\Delta] = \lcoeff{n_1} \delta(n_2) \delta(n_3)
+\end{equation}
+%
+that is, ``virtual'' signal $\coeff[.] : \Lambda \to \complessi$ is
+separable.  It turns out that $\Coeff[.] :
+\reali^3/\Lambda^*\to\complessi$ is 
+separable too and that 
+%
+\begin{equation}
+\label{eq:8;beamforming-notes}
+\Coeff[k_1, k_2, k_3] = \Lcoeff{k_1}
+\qquad \wv \in \reali^3/\Lambda^*
+\end{equation}
+%
+Note that $\Lambda^*=\interi^3(\inv\Delta)$, therefore $k_1 \in
+\reali/\interi(\inv\Delta)$. By expressing $\wv$ in a suitable spherical
+coordinate system\footnote{$\theta$ is the angle between $\wv$ and the
+  first axis, $\phi$ is the angle between the projection of $\wv$ on
+  the plane of the other two axes and the second axis.}
+  so that
+%
+\begin{equation}
+\label{eq:10;beamforming-notes}
+\wv=\norma\wv \vciii{\cos\theta}
+  {\sin\theta\cos\phi}{\sin\theta\sin\phi}
+\end{equation}
+%
+we get, remembering that $\norm\wv=f/v$,
+%
+\begin{equation}
+\label{eq:9;beamforming-notes}
+\Coeff[.]\left(\frac{f}{v}\wvn \right)
+= \Lcoeff.\left(\frac{f}{v}\cos\theta \right)
+\end{equation}
+%
+It turns out that at a given frequency $f$ the sensitivity of the
+virtual sensor depends only on the angle $\theta$ between $\wv$ and
+the first axis. Moreover, the sensitivity as function of $\theta$ is
+the frequency response of $\lcoeff.$ ``distorted'' by the cosine. If
+we have a desired receiving pattern, \er{eq:9;beamforming-notes}
+reduces the problem to finding coefficients $\lcoeff n$ to the problem
+of designing a FIR filter with a given frequency response.
+
+\begin{commento}
+  Frequency response $\Lcoeff.$ is periodic with period
+  $\inv\Delta$. If $f/v$ is too large, $(f/v) \cos \theta$ can span
+  more than one period, giving rise to a sensitivity that is
+  ``repetitive'' (not truly periodic because of the cosine) in
+  $\theta$.  
+  
+  If this repetition is not desired, $(f/v)\cos\theta= (1/\lambda)
+  \cos\theta$ must remains between $\pm \inv\Delta/2$ for every
+  $\theta$.  This is true if and only if
+  %
+\begin{equation}
+\label{eq:11;beamforming-notes}
+\frac{1}{\lambda} < \frac{\inv\Delta}{2}
+\quad \sse \quad
+\Delta < \frac \lambda 2
+\end{equation}
+%
+that is, the space between the sensor must be smaller than half the
+wavelength. 
+\end{commento}
+
+\section{Adding filtering}
+\label{sect:2;beamforming-notes}
+
+Let's make the system a bit more complex: instead of just multiplying
+every sensor output by a weight, let's filter the sampled version of
+the output of the sensor in $\x$ before mixing.  Let $T$ be the
+sampling interval and denote with $\filt$ the $n$-th sample of the
+impulse response associated with the sensor in $\x$.  Note that now
+$\filt[.]$ can be considered as signal defined on lattice $\Lambda
+\times \interi(T)$.  The output of the mixer at time $mT$ is
+%
+\begin{equation}
+\label{eq:13;beamforming-notes}
+\begin{split}
+  \out[mT]
+  &= \sum_{\x \in\Lambda} \sum_{n \in \interi}  \filt
+  \exp\left(-j 2\pi \wv^t\x \right)
+    \exp\left(j 2\pi f(mT-nT)\right)\\
+  &= \sum_{\x \in\Lambda} \sum_{n \in \interi}  \filt
+  \exp\left(-j 2\pi \wv^t\x \right)
+    \exp\left(j 2\pi fmT\right)
+    \exp\left(-j 2\pi fnT\right)\\
+  &=     \exp\left(j 2\pi fmT\right)
+\sum_{\x \in\Lambda} \sum_{n \in \interi}  \filt
+  \exp\left(-j 2\pi \wv^t\x \right)
+    \exp\left(-j 2\pi fnT\right) \\
+    &=     \exp\left(j 2\pi fmT\right) \Filt\\
+    &=     \exp\left(j 2\pi fmT\right) \Filt[.]\left(\frac{f}{v}\wvn,f \right)
+\end{split}
+\end{equation}
+%
+where $\Filt[.] : \reali^4/(\Lambda^* \times \interi(1/T)) \to
+\complessi$ is the Fourier transform of $\filt[.] : \Lambda \times
+\interi(T) \to \complessi$.
+
+
+
+
+\bibliographystyle{i3e}
+\bibliography{biblio,di-jelena,miei,rfc,local}%,nldpre80
+\end{document}
+
+
+
+
+%%  LocalWords:  beamforming eq wavevector versor biblio di jelena
+%%  LocalWords:  miei rfc

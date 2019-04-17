@@ -1,0 +1,345 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsbsy}
+\usepackage{amssymb}
+\usepackage{amsthm,amsfonts}
+\usepackage{epsf,epsfig}
+\usepackage{times}
+\usepackage{mathptmx}
+\usepackage{color}
+\usepackage{nomelabel}
+\usepackage[english]{babel}
+\usepackage{srcltx}
+\usepackage[boxed]{algorithm2e}
+\usepackage{ifpdf}
+%
+% Standard definitions...
+%
+\input{def}
+%
+% True document
+%
+\newcommand{\muth}{\mu_\theta}
+\begin{document}
+%\maketitle
+\begin{abstract}
+  Due appunti in croce su beamforming \& C.
+\end{abstract}
+
+\section{Caso semplice}
+\label{sect:3;appunti}
+
+Si consideri lo schema in \fref{ref}.  Abbiamo una sorgente
+monocromatica che emette $t \mapsto \exp(j2\pi ft)$ a distanza $R$
+dall'origine e angolo (con la verticale) $\alpha$.  Supponiamo di
+avere un microfono in posizione $(x,y)$.  Vogliamo determinare il
+segnale acquisito $s : \reali \to \complessi$.
+
+\begin{figure}
+\centerline{\unafigura{figura-beamforming-2}}
+\caption{
+\label{fig:ref}}
+\end{figure}
+%
+
+Sia $r$ la distanza tra il microfono e la sorgente. Sia
+$d=\sqrt{x^2+y^2}$ la distanza del microfono dall'origine e sia
+$\beta$ tale che $\tan\beta=-y/x$ (vedi figura). Usando il teorema 
+del coseno
+%
+\begin{equation}
+\label{eq:9;appunti}
+\begin{split}
+  r &= \sqrt{R^2 + d^2 - 2Rd \cos(\pi/2-\alpha+\beta)}  \\
+    &= \sqrt{R^2 + d^2 - 2Rd \sin(\alpha-\beta)}  \\
+    &= R \sqrt{1 + (d/R)^2 - 2(d/R) \sin(\alpha-\beta)}  
+\end{split}
+\end{equation}
+%
+Osserviamo ora che tipicamente $R \gg d$ ($R$ \`e dell'ordine dei
+metri, $d$ dei centimetri).  Possiamo quindi trascurare $(d/R)^2$ (che
+\`e dell'ordine di $10^{-4}$) rispetto a $d/R$.  Possiamo inoltre
+approssimare la radice quadrata col suo sviluppo di Taylor intorno a 1
+arrestato al primo termine ($\sqrt{1+x} \approx 1 + x/2$) ottenendo
+%
+\begin{equation}
+\label{eq:10;appunti}
+\begin{split}
+  r &= R \sqrt{1 + (d/R)^2 - 2(d/R) \sin(\alpha-\beta)}  \\
+  &\approx R \sqrt{1 - 2(d/R) \sin(\alpha-\beta)}  \\
+  &\approx R (1 - (d/R) \sin(\alpha-\beta))  \\
+  &= R - d \sin(\alpha-\beta) \\
+  &= R - d \sin\alpha\cos\beta + d\sin\beta\cos\alpha \\
+  &= R - x \sin\alpha - y \cos\alpha 
+\end{split}
+\end{equation}
+%
+dove abbiamo sfruttato una nota uguaglianza trigonometrica e il fatto
+che $y=-d \sin\beta$, $x=d\cos\beta$.
+
+Il segnale acquisito dal microfono all'istante $t$ ha lasciato la
+sorgente $r/v$ istanti prima.  Ne segue che
+%
+\begin{equation}
+\label{eq:11;appunti}
+\begin{split}
+  s(t) &= \exp\left(j 2\pi f (t-r/v)\right) \\
+       &= \exp\left[j 2\pi f
+  \left(t-\frac{R-x\sin\alpha-y\cos\alpha}{v} \right)\right] \\
+       &= \exp(j 2\pi f t) \exp(-j 2\pi f R/v) 
+  \exp\left[j2\pi f \left(\sin\alpha \frac{x}{v}+\cos\alpha\frac{y}{v}
+    \right)\right] \\ 
+       &= \exp(j 2\pi f t) \exp(-j 2\pi f R/v) 
+  \exp\left[j2\pi f \left(\tau_x \sin\alpha+\tau_y \cos\alpha
+    \right)\right] \\ 
+       &= \commenta{\exp(j 2\pi f t) \exp(-j 2\pi f R/v)}{E(t)}
+  \exp\left[j2\pi  \left(\frac{x}{\lambda}
+    \sin\alpha+\frac{y}{\lambda}  \cos\alpha
+    \right)\right] \\ 
+\end{split}
+\end{equation}
+%
+dove $\lambda$ \`e la lunghezza d'onda, $\tau_x=x/v$ \`e il tempo che
+l'onda ci mette a percorrere una distanza $x$, simile per $\tau_y$.
+Si noti che $E(t)$ \`e una versione ritardata dell'onda emessa dalla
+sorgente e non dipende dalla posizione del microfono.
+
+Supponiamo ora di avere un reticolo di microfoni disposti nelle
+posizioni $(n\Delta_x, m\Delta_y)$ con $n,m\in\interi$ e di
+``mischiare'' i contributi dei microfoni pesando il segnale acquisito
+dal microfono $(n,m)$ con $a_{n,m}\in \complessi$.  Sia $T_x =
+\Delta_x/v$, $T_y=\Delta_y/v$. Il risultato \`e
+%
+\begin{equation}
+\label{eq:12;appunti}
+\begin{split}
+  x(t) &= \sum_{n,m\in \interi} a_{n,m} s_{n,m}(t) \\
+  &= E(t) \sum_{n,m\in \interi} a_{n,m}
+    \exp\left[j2\pi f \left(\frac{n\Delta_x}{v}
+      \sin\alpha+\frac{m\Delta_y}{v} \cos\alpha 
+    \right)\right] \\ 
+  &= E(t) \sum_{n,m\in \interi} a_{n,m}
+    \exp\left[j2\pi \left(n (f T_x)
+      \sin\alpha+m (f T_y) \cos\alpha 
+    \right)\right] \\ 
+  &= E(t) \sum_{n,m\in \interi} a_{n,m}
+    \exp\left(j2\pi [-f T_x \sin\alpha,  -f T_y \cos\alpha] [n,m]^t
+    \right) \\ 
+  &= E(t) A(-f T_x \sin\alpha, -f T_y \cos\alpha)  \\
+  &= E(t) A(\overline\Delta_x \sin\alpha, \overline\Delta_y \cos\alpha)  \\
+\end{split}
+\end{equation}
+%
+dove $\overline\Delta_x = \Delta_x/\lambda$.  Ne deduciamo quindi che
+il segnale viene amplificato di $\abs{A(\overline\Delta_x \sin\alpha,
+\overline\Delta_y \cos\alpha)}$ e sfasato di $\angle
+A(\overline\Delta_x \sin\alpha, \overline\Delta_y \cos\alpha)$
+(rispetto al segnale acquisito dal microfono nell'origine).  Si
+osservi che $A: \reali^2 \to \complessi$ \`e la trasformata di Fourier
+del filtro bidimensionale $a_{n,m}$.  Si osservi inoltre $A$ viene
+``campionata'' sull'ellisse di assi $\overline\Delta_x = f T_x$,
+$\overline\Delta_y = f T_y$.   Si veda \fref{ref}
+
+\subsection{Il caso del reticolo generico}
+\label{sub:0;appunti}
+
+Riprendiamo la \er{eq:11;appunti} e riscriviamola senza fare uso delle
+coordinate $x$ e $y$
+
+%
+\begin{equation}
+\label{eq:13;appunti}
+\begin{split}
+  s_p(t) &=  E(t) \exp\left[j2\pi  \left(\frac{x}{\lambda}
+    \sin\alpha+\frac{y}{\lambda}  \cos\alpha
+    \right)\right] \\ 
+ &= E(t) \exp\left(j2\pi  \frac{u_\alpha^t}{\lambda} p\right) 
+\end{split}
+\end{equation}
+%
+dove $u_\alpha = [\sin\alpha, \cos\alpha]$.  Supponiamo ora che i
+microfoni siano su un reticolo $\Lambda$, il risultato della somma
+pesata diventa
+%
+\begin{equation}
+\label{eq:14;appunti}
+\begin{split}
+  x(t) &= \sum_{p\in\Lambda} a_p E(t) \exp\left(j2\pi
+  \frac{u_\alpha^t}{\lambda} p\right)  \\
+       &= E(t) \sum_{p\in\Lambda} a_p \exp\left(j2\pi
+  \frac{u_\alpha^t}{\lambda} p\right)  \\
+       &= E(t) A(u_\alpha/\lambda) \\
+       &= E(t) A(f u_\alpha/v) 
+\end{split}
+\end{equation}
+%
+dove $A : \reali^2/\Lambda^* \to \complessi$ \`e la risposta in
+frequenza del filtro $a : \Lambda \to \complessi$.  Si osservi che ora
+la risposta in frequenza viene campionata su un cerchio e non pi\`u
+su un'ellisse.  La spiegazione \`e che nel caso precedente lo
+stiracchiamento degli assi era dovuto al fatto che il filtro era
+sempre su $\interi^2$, anche se $\Delta_x\ne \Delta_y$.  Ora gli assi
+sono scalati secondo la geometria reale ed il ``campionamento''
+avviene su una circonferenza di raggio proporzionale alla frequenza
+del segnale.
+
+% \appendix
+% \section{Roba vecchia}
+% \label{sect:2;appunti}
+% 
+% \subsection{Onda piana}
+% \label{sect:0;appunti}
+% 
+% Sia $\bfu \in \reali^3$ un vettore unitario $\norma\bfu=1$.  Un
+% segnale spazio-temporale $s : \reali^3 \times \reali \to \complessi$
+% \`e un'\emph{onda piana che viaggia in direzione $\bfv$ con velocit\`a
+%   $v$} se $s$ assume in $\bfx$ lo stesso valore che aveva assunto
+% nell'origine $\bfu^t\bfx/v$ secondi fa, ossia
+% %
+% \begin{equation}
+% \label{eq:0;appunti}
+% \forall \bfx,t \qquad s(\bfx, t) = s(0, t-\bfu^t\bfx/v)
+% \end{equation}
+% %
+% In altre parole, $s$ \`e un'onda piana se esiste $g : \reali \to
+% \complessi$ tale che
+% %
+% \begin{equation}
+% \label{eq:1;appunti}
+% s(\bfx, t) = g(t-\bfu^t\bfx/v) = g(t-\bfk^t\bfx)
+% \end{equation}
+% %
+% dove $\bfk=\bfu/v$.
+% 
+% Supponiamo ora che $g$ sia un'esponenziale complesso di frequenza $f$
+% %
+% \begin{equation}
+% \label{eq:2;appunti}
+% g(t) = \exp(j2\pi ft)
+% \end{equation}
+% %
+% Ne segue che
+% %
+% \begin{equation}
+%   \label{eq:3;appunti}
+%   \begin{split}
+% s(\bfx, t) &= \exp(j2\pi f(t-\bfk^t\bfx))\\
+% &= \exp(j2\pi ft) \exp(-j2\pi f\bfk^t\bfx))\\
+% &= \exp(j2\pi ft) \exp(-j2\pi (f/v)\bfu^t\bfx)) \\
+% &= \exp(j2\pi ft) \exp(-j2\pi\bfu^t\bfx/\lambda))
+%   \end{split}
+% \end{equation}
+% %
+% dove $\lambda = f/v$ \`e la lunghezza d'onda.
+% 
+% Supponiamo ora di avere dei microfoni posizionati e che l'$n$-simo
+% microfonato sia posizionato in $n L
+% \bfb$, dove $n \in \interi$, $L \in\reali$ \`e la distanza tra
+% microfoni e $\norma\bfb=1$.  Il segnale acquisito dall'$n$-simo
+% microfono \`e quindi
+% %
+% \begin{equation}
+%   \label{eq:4;appunti}
+%   \begin{split}
+% r_n(t) \perdef s(nL\bfb, t) &=
+% \exp(j2\pi ft) \exp(-j2\pi n \bfu^t\bfb L/\lambda) \\
+% &= \exp(j2\pi ft) \exp(-j2\pi n \cos(\theta) L/\lambda) \\
+% &= \exp(j2\pi ft) \exp(-j2\pi \muth n) \\
+%   \end{split}
+% \end{equation}
+% %
+% dove $\theta$ \`e l'angolo tra $\bfu$ e $\bfb$ e $\muth = \cos(\theta)
+% L/\lambda$.  Supponiamo ora di moltiplicare per $\alpha_n$ e ritardare
+% di $\tau_n$ il segnale $r_n$ prima di ``impastare'' tra loro tutti i
+% segnali.  Il segnale di uscita $y : \reali \to \complessi$ \`e
+% %
+% \begin{equation}
+% \label{eq:5;appunti}
+%   \begin{split}
+%     y(t) &= \sum_n \alpha_n r_n(t-\tau_n) \\
+%          &= \sum_n \alpha_n \exp(j2\pi ft) \exp(-j2\pi f\tau_n)
+%     \exp(-j2\pi \muth n) \\ 
+%     &= \exp(j2\pi ft) \sum_n a_{f}(n) \exp(-j2\pi \muth n) \\
+%     &= \exp(j2\pi ft) A_f(\muth)
+%   \end{split}
+% \end{equation}
+% %
+% dove $a_f(n) \perdef \alpha_n \exp(-j2\pi f\tau_n)$ e $A_f(\muth)$ \`e
+% la ``trasformata di Fourier'' di $a_f$ calcolata in $\muth =
+% \cos(\theta) L/\lambda$. La notazione $a_f(n)$ \`e stata scelta
+% apposta per interpretare i coefficienti $\alpha_n \exp(-j2\pi
+% f\tau_n)$ come un segnale a tempo discreto difendente da $f$.
+% 
+% In generale $A_f(\muth)$ dipende da $f$, ma nel caso specifico in cui
+% $\tau_n=\tau_0$ per ogni $n$, il fattore $\exp(-j2\pi f\tau_0)$
+% pu\`o essere estratto dalla sommatoria ed ``assorbito'' come una fase
+% in $\exp(j2\pi ft)$ (il che è ovvio: stiamo traslando tutti gli $r_n$
+% nello stesso modo e tale traslazione si riflette sul segnale di
+% uscita).
+% 
+% Quando $\theta$ va da $0$ a $\pi$, $\muth$ passa da $L/\lambda$ a
+% $-L/\lambda$.  Se $L = \lambda/2$, vengono passate tutte le frequenze
+% normalizzate da $-1/2$ a $1/2$, se $L > \lambda/2$, c'\`e aliasing,
+% mentre se $L < \lambda/2$ solo un sottoinsieme delle frequenze vengono
+% esplorate.
+% 
+% Vediamo le lunghezze d'onda tipiche del suono: a 440 Hz, e 300 m/s
+% abbiamo circa 68~cm, se andiamo a 44kHz, abbiamo 7~mm circa a 50~kHz
+% abbiamo 6~mm (quindi $L$ ottima \`e 3mm)
+% 
+% \section{Il caso multidimensionale}
+% \label{sect:1;appunti}
+% 
+% Supponiamo di disporre i microfoni lungo un reticolo $\ret\bfM$ di
+% base $\bfM \in \reali^{3\times 2}$.  Abbiamo quindi per $\bfn \in
+% \interi^2$
+% %
+% \begin{equation}
+% \label{eq:6;appunti}
+% \begin{split}
+%   r_{\bfn}(t) = s(\bfM\bfn, t)
+%   &=
+%   \exp(j2\pi ft)
+%   \exp\left(-j2\pi \frac{\bfu^t\bfM}{\lambda}\bfn\right) \\
+%   &=
+%   \exp(j2\pi ft)
+%   \exp\left(-j2\pi \bfv^t\bfn\right) \\
+% \end{split}
+% \end{equation}
+% %
+% dove
+% %
+% \begin{equation}
+% \label{eq:7;appunti}
+% \bfv = \frac{\bfM^t \bfu}{\lambda} =
+% \vcii{\mu_1\cos\theta_1}
+% {\mu_2\cos\theta_2}
+%  \in \reali^{1\times 2}
+% \end{equation}
+% %
+% dove $\theta_i$ \`e l'angolo tra $\bfu$ e l'$i$-simo vettore di base,
+% mentre $\mu_i = L_i/\lambda$ \`e la lunghezza dell'$i$-simo vettore di
+% base misurata in unit\`a di $\lambda$.
+% 
+% Il sengale di uscita risulta quindi essere
+% %
+% \begin{equation}
+% \label{eq:8;appunti}
+%   \begin{split}
+%     y(t) &= \sum_\bfn \alpha_\bfn r_\bfn(t-\tau_\bfn) \\
+%          &= \exp(j2\pi ft) \sum_\bfn \alpha_\bfn  \exp(-j2\pi f\tau_n)
+%     \exp(-j2\pi\bfv^t\bfn) \\
+%          &= \exp(j2\pi ft) \sum_\bfn a_\bfn
+%     \exp(-j2\pi\bfv^t\bfn) \\
+%     &= \exp(j2\pi ft) A(\bfv) \\
+%    &= \exp(j2\pi ft) A(f \frac{\bfv_0}{v}) \\
+%   \end{split}
+% \end{equation}
+% %
+% \end{document}
+\bibliographystyle{i3e}
+\bibliography{biblio,di-jelena,miei,rfc,local}%,nldpre80
+\end{document}
+
+
+

@@ -1,0 +1,5 @@
+pragma Ada_2012;
+package body Beamforming.Weights is
+
+
+end Beamforming.Weights;

@@ -1,0 +1,4 @@
+This directory contains an old version based on Portaudio.  The ads file was
+cannibalized to make the current beamforming-audio.ads.  If you want to resurrect
+this version you need to recreate the specs and adjust stuff around.  Left
+here for hystorical significance
