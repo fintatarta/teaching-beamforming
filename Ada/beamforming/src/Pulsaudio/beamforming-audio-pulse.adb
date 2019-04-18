@@ -6,8 +6,6 @@ package body Beamforming.Audio.Pulse is
    ------------
 
    function Create
-     (Buffer_Size : Duration := 0.5;
-      Period      : Duration := 0.1)
       return Pulse_Handler
    is
    begin

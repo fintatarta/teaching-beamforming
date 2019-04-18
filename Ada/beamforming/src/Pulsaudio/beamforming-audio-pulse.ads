@@ -1,9 +1,9 @@
-package Beamforming.Audio.Pulse is
-   type Pulse_Handler (<>)  is new Audio_Handler with private;
+with Pulsada.Thin;
 
-   function Create (Buffer_Size : Duration := 0.5;
-                    Period      : Duration := 0.1)
-                    return Pulse_Handler;
+package Beamforming.Audio.Pulse is
+   type Pulse_Handler (<>)  is limited new Audio_Handler with private;
+
+   function Create return Pulse_Handler;
 
    procedure Start (Handler            : in out Pulse_Handler;
                     Sampling_Frequency : Long_Float);
@@ -14,8 +14,11 @@ package Beamforming.Audio.Pulse is
 private
 --     type Line_Access is access Sound.Stereo_Recording.Line_Type;
 
-   type Pulse_Handler is new Audio_Handler
-   with null record;
+   type Pulse_Handler is limited new Audio_Handler
+     with
+      record
+         Session : Pulsada.Thin.Session_Type;
+      end record;
 --
 --     function Create (Buffer_Size : Duration := 0.5;
 --                      Period      : Duration := 0.1)
