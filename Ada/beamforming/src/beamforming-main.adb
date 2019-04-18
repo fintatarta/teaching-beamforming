@@ -10,6 +10,7 @@ with Beamforming.Controller;
 with Beamforming.Command_Line;
 with Beamforming.Audio.Pulse;
 with Beamforming.Internal_State;
+with Beamforming.Updaters;
 
 with Utilities.Task_Reaper;
 
@@ -57,8 +58,9 @@ begin
          
          Internal_State.Set_Weights (Command_Line.Channel_Weights);
             
+         
          Audio_Handler.Start (Command_Line.Sampling_Frequency);
-            
+         Updaters.Updater_Task.Start;   
            
          Gnoga.Application.Singleton.Message_Loop;            
    end case;

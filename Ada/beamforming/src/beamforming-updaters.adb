@@ -3,8 +3,12 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Calendar;
 
+with Utilities.Timed_Logging;
+pragma Warnings (Off, Utilities.Timed_Logging);
+
 with Beamforming.Internal_State;
 with Beamforming.Processing;
+
 use Ada;
 
 package body Beamforming.Updaters is
@@ -20,7 +24,7 @@ package body Beamforming.Updaters is
       Max_Level : constant Float := 100.0;
 
       function To_Level (X : Float) return Internal_State.Level_Type
-      is (Internal_State.Level_Type (Float'Max (1.0, X / Max_Level)));
+      is (Internal_State.Level_Type (Float'Min (1.0, X / Max_Level)));
 
 
       Sampling_Step    : constant Duration := 0.1;
@@ -29,13 +33,23 @@ package body Beamforming.Updaters is
       Filter           : Processing.Averaging_Filter := Processing.Create (12);
       Current_Mix      : Float;
       Averaged_Mix     : Float;
+
+--        Logger           : Utilities.Timed_Logging.Logger;
    begin
+      select
+         accept Start;
+      or
+         terminate;
+      end select;
+
       Next_Output_Time := Calendar.Clock;
+
 
       while not Internal_State.Stopped loop
          select
             delay 0.1;
          then abort
+--              Logger.Print ("Eccomi");
             Current_Mix := Processing.Mix_Channels (Internal_State.Read_Samples,
                                                     Internal_State.Get_Weights);
 
