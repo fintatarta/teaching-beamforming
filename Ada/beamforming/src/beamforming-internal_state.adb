@@ -58,6 +58,8 @@ package body Beamforming.Internal_State is
          if N_Free = 0 then
             pragma Assert (State = Normal);
             State := Full;
+         else
+            State := Normal;
          end if;
       end Set;
 
@@ -73,6 +75,8 @@ package body Beamforming.Internal_State is
          if N_Free = Sample_Counter'Last then
             pragma Assert (State = Normal);
             State := Empty;
+         else
+            State := Normal;
          end if;
       end Get;
    end Sample_Holder;
