@@ -3,6 +3,9 @@ with Beamforming.Generic_Data_Mover;
 
 package body Beamforming.Audio.Pulse is
 
+   pragma Linker_Options ("-lpulse");
+   pragma Linker_Options ("-lpulse-simple");
+
    type Frame_block_Access is access Pulsada.Frame_Block;
 
    type Session_Internal is

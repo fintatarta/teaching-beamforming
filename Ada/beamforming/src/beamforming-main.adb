@@ -8,7 +8,7 @@ with Gnoga.Gui.Window;
 
 with Beamforming.Controller;
 with Beamforming.Command_Line;
-with Beamforming.Audio.Alsa;
+with Beamforming.Audio.Pulse;
 with Beamforming.Internal_State;
 
 with Utilities.Task_Reaper;
@@ -18,7 +18,6 @@ use Ada.Text_IO;
 
 procedure Beamforming.Main is
    
-   pragma Linker_Options ("-lportaudio");
    
    Error : exception;
    
@@ -39,7 +38,7 @@ procedure Beamforming.Main is
    
    use type Beamforming.Command_Line.Action_Type;
    
-   Audio_Handler : Audio.Alsa.ALSA_Handler := Audio.Alsa.Create;
+   Audio_Handler : Audio.Pulse.Pulse_Handler := Audio.Pulse.Create (N_Channels => 2);
 begin
    Utilities.Task_Reaper.Install_Reaper;
    
