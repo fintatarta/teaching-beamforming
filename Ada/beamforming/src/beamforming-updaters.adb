@@ -21,7 +21,7 @@ package body Beamforming.Updaters is
    task body Updater_Task is
       use type Calendar.Time;
 
-      Max_Level : constant Float := 100.0;
+      Max_Level : constant Float := 1.0e10;
 
       function To_Level (X : Float) return Internal_State.Level_Type
       is (Internal_State.Level_Type (Float'Min (1.0, X / Max_Level)));
@@ -34,7 +34,7 @@ package body Beamforming.Updaters is
       Current_Mix      : Float;
       Averaged_Mix     : Float;
 
---        Logger           : Utilities.Timed_Logging.Logger;
+      Logger           : Utilities.Timed_Logging.Logger;
    begin
       select
          accept Start;
@@ -54,6 +54,8 @@ package body Beamforming.Updaters is
                                                     Internal_State.Get_Weights);
 
             Averaged_Mix := Processing.Smooth (Filter, Current_Mix ** 2);
+
+            Logger.Print (Current_Mix'Img);
 
             if Calendar.Clock >= Next_Output_Time then
                Internal_State.Set_Level (To_Level (Averaged_Mix));
