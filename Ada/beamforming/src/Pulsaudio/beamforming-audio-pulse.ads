@@ -1,4 +1,4 @@
-with Pulsada.Thin;
+private with Pulsada.Thin;
 
 package Beamforming.Audio.Pulse is
    type Pulse_Handler (<>)  is limited new Audio_Handler with private;

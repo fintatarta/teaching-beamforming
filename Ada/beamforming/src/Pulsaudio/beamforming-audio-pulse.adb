@@ -13,6 +13,7 @@ package body Beamforming.Audio.Pulse is
          Session    : Session_Access;
          N_Channels : Pulsada.Channel_Index;
          Buffer     : Frame_Block_Access;
+         Gain       : Float;
       end record;
 
    ----------
@@ -30,7 +31,7 @@ package body Beamforming.Audio.Pulse is
          To := (others => 0.0);
 
          for Sample of Item loop
-            To (Cursor) := Sample_Type (Sample);
+            To (Cursor) := Sample_Type (Source.Gain * Float (Sample) / Float (Pulsada.Sample_Type'Last));
             Cursor := Channel_Index'Succ (Cursor);
          end loop;
       end Convert;
@@ -82,6 +83,7 @@ package body Beamforming.Audio.Pulse is
       Pulse_Data_Mover.Data_Mover.Start
         (Session_Internal'(Session    => Handler.Session,
                            N_Channels => N_Channels,
+                           Gain       => 1.0,
                            Buffer     =>
                               new Frame_Block' (New_Block (N_Channels, N_Frames))));
    end Start;
