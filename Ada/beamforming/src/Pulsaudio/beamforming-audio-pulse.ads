@@ -3,7 +3,8 @@ with Pulsada.Thin;
 package Beamforming.Audio.Pulse is
    type Pulse_Handler (<>)  is limited new Audio_Handler with private;
 
-   function Create return Pulse_Handler;
+   function Create (N_Channels : Channel_Index)
+                    return Pulse_Handler;
 
    procedure Start (Handler            : in out Pulse_Handler;
                     Sampling_Frequency : Long_Float);
@@ -12,12 +13,13 @@ package Beamforming.Audio.Pulse is
      (Handler : Pulse_Handler)
       return String;
 private
---     type Line_Access is access Sound.Stereo_Recording.Line_Type;
+   type Session_Access is access Pulsada.Thin.Session_Type;
 
    type Pulse_Handler is limited new Audio_Handler
      with
       record
-         Session : Pulsada.Thin.Session_Type;
+         Session : Session_Access;
+         N_Channels : Channel_Index;
       end record;
 --
 --     function Create (Buffer_Size : Duration := 0.5;
