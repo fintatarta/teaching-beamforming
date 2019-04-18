@@ -6,68 +6,68 @@ with "ALSA/ALSA-binding/alsa_binding";
 
 project Beamforming is
 
-   type Build_Kind7 is
-      ("default");
-   type Build_Kind6 is
-      ("default");
-   type Build_Kind5 is
-      ("default");
-   type Build_Kind4 is
-      ("default");
-   type Build_Kind3 is
-      ("default");
-   type Build_Kind2 is
-      ("default");
-   type Build_Kind1 is
-      ("default");
-   type Build_Kind is
-      ("default");
    for Languages use ("Ada");
    for Source_Dirs use (".", "ALSA", "Pulsaudio");
    for Object_Dir use "../obj";
    for Exec_Dir use "../bin";
    for Main use ("beamforming-main.adb");
-   PORTAUDIOADA_BUILD : Build_Kind := external ("PORTAUDIOADA_BUILD");
-   XPM_PARSER_BUILD : Build_Kind1 := external ("XPM_PARSER_BUILD");
-   CONNECTIONS_SERVER_BUILD : Build_Kind2 := external ("COMPONENTS.CONNECTIONS_SERVER_BUILD");
-   TABLES_BUILD : Build_Kind3 := external ("TABLES_BUILD");
-   STRINGS_EDIT_BUILD : Build_Kind4 := external ("STRINGS_EDIT_BUILD");
-   COMPONENTS_BUILD : Build_Kind5 := external ("COMPONENTS_BUILD");
-   HTTP_SERVER_BUILD : Build_Kind6 := external ("COMPONENTS.CONNECTIONS_SERVER.HTTP_SERVER_BUILD");
-   GNOGA_BUILD : Build_Kind7 := external ("GNOGA_BUILD");
+   type Build_Kind is
+      ("default");
+   Portaudioada_Build : Build_Kind := external ("PORTAUDIOADA_BUILD");
+   type Build_Kind1 is
+      ("default");
+   Xpm_Parser_Build : Build_Kind1 := external ("XPM_PARSER_BUILD");
+   type Build_Kind2 is
+      ("default");
+   Connections_Server_Build : Build_Kind2 := external ("COMPONENTS.CONNECTIONS_SERVER_BUILD");
+   type Build_Kind3 is
+      ("default");
+   Tables_Build : Build_Kind3 := external ("TABLES_BUILD");
+   type Build_Kind4 is
+      ("default");
+   Strings_Edit_Build : Build_Kind4 := external ("STRINGS_EDIT_BUILD");
+   type Build_Kind5 is
+      ("default");
+   Components_Build : Build_Kind5 := external ("COMPONENTS_BUILD");
+   type Build_Kind6 is
+      ("default");
+   Http_Server_Build : Build_Kind6 := external ("COMPONENTS.CONNECTIONS_SERVER.HTTP_SERVER_BUILD");
+   type Build_Kind7 is
+      ("default");
+   Gnoga_Build : Build_Kind7 := external ("GNOGA_BUILD");
 
    package Compiler is
       for Default_Switches ("ada") use ("-g", "-gnata", "-gnatq", "-gnatQ");
 
-      case PORTAUDIOADA_BUILD is
+      case Portaudioada_Build is
 
          when "default" =>
 
-            case XPM_PARSER_BUILD is
+            case Xpm_Parser_Build is
 
                when "default" =>
 
-                  case CONNECTIONS_SERVER_BUILD is
+                  case Connections_Server_Build is
 
                      when "default" =>
 
-                        case TABLES_BUILD is
+                        case Tables_Build is
 
                            when "default" =>
 
-                              case STRINGS_EDIT_BUILD is
+                              case Strings_Edit_Build is
 
                                  when "default" =>
 
-                                    case COMPONENTS_BUILD is
+                                    case Components_Build is
 
                                        when "default" =>
 
-                                          case HTTP_SERVER_BUILD is
+                                          case Http_Server_Build is
 
                                              when "default" =>
 
-                                                case GNOGA_BUILD is
+                                                case Gnoga_Build is
 
                                                    when "default" =>
                                                       for Default_Switches ("ada") use ("-gnatwa", "-g", "-gnata", "-gnatq", "-gnatQ");
@@ -88,6 +88,47 @@ project Beamforming is
    package Builder is
       for Executable ("beamforming-main.adb") use "beamforming";
    end Builder;
+
+   case Xpm_Parser_Build is
+
+      when "default" =>
+
+         case Connections_Server_Build is
+
+            when "default" =>
+
+               case Tables_Build is
+
+                  when "default" =>
+
+                     case Strings_Edit_Build is
+
+                        when "default" =>
+
+                           case Components_Build is
+
+                              when "default" =>
+
+                                 case Http_Server_Build is
+
+                                    when "default" =>
+
+                                       case Gnoga_Build is
+
+                                          when "default" =>
+
+                                             case Portaudioada_Build is
+
+                                                when "default" =>
+                                                   for Main use ("beamforming-main.adb", "utilities-timed_logging-main.adb");
+                                             end case;
+                                       end case;
+                                 end case;
+                           end case;
+                     end case;
+               end case;
+         end case;
+   end case;
 
 end Beamforming;
 
