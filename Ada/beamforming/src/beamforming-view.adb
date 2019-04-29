@@ -1,33 +1,47 @@
-with ada.Text_IO; use Ada.Text_IO;
+with Ada.Text_IO; use Ada.Text_IO;
 with Beamforming.Internal_State;
 with Beamforming.Weights;
 
 package body Beamforming.View is
+   Min_Angle : constant Integer := -45;
+   Max_Angle : constant Integer :=  45;
 
-   procedure on_angle_changed(Object : in out Gnoga.Gui.Base.Base_Type'Class)
+   procedure On_Angle_Changed (Object : in out Gnoga.Gui.Base.Base_Type'Class)
    is
-      use gnoga.gui.Element.Form;
+      use Gnoga.Gui.Element.Form;
       
-       view : Default_View_Type renames Default_View_Type (Object);
+      View : Default_View_Type renames Default_View_Type (Object);
       --  Renaming is a convenient way to "upcast" in event handlers
       
-      function to_weights(angle: Integer) return Weights.Weight_Vector
+      function To_Weights (Angle : Integer) return Weights.Weight_Vector
       is
       begin
          return Weights.Weight_Vector'(others => 1.0);
-      end to_weights;
-   begin
-      if view.angolo.Value /= view.current_value then
-         view.angolo_text.Value(string'(view.angolo.Value));
-      else
-         view.angolo.Value(integer'(view.angolo_text.Value));
-      end if;
+      end To_Weights;
       
-      view.current_value := view.angolo.Value;
-
-      Internal_State.Set_Weights(to_weights(view.current_value));
-      put_line(Standard_Error, "New angle: " & view.angolo.Value);
-   end on_angle_changed;
+      function Clip (X : Integer) return Integer 
+      is (Integer'Min (Max_Angle, Integer'Max (X, Min_Angle)));
+      
+   begin
+--        Put_Line (Standard_Error, Integer'(View.Angolo.Value)'img 
+--                  & "," &Integer'(View.Angolo_Text.Value)'img 
+--                  & String'(View.Angolo.Value)
+--                  & String'(View.Angolo_Text.Value)
+--                  & View.Current_Value'Img);
+      
+      View.Current_Value :=  Clip ((if View.Angolo.Value /= View.Current_Value then
+                                      View.Angolo.Value
+                                   else
+                                      View.Angolo_Text.Value));
+   
+      
+      Put_Line (Standard_Error, "New angle: " & View.Angolo.Value);
+      
+      View.Angolo_Text.Value (View.Current_Value);
+      View.Angolo.Value (View.Current_Value);
+      
+      Internal_State.Set_Weights (To_Weights (View.Current_Value));
+   end On_Angle_Changed;
    ------------
    -- Create --
    ------------
@@ -44,20 +58,21 @@ package body Beamforming.View is
       View.Lavagna.Create (View, 
                            Width  => View_Width,
                            Height => View_Height);
-      view.form.Create(Parent => view);
+      View.Form.Create (Parent => View);
       
-      view.current_value := 0;
+      View.Current_Value := 0;
       
-      view.angolo_text.Create(view.form,
-                              Value => integer'Image(view.current_value));
+      View.Angolo_Text.Create (View.Form,
+                               Value => Integer'Image (View.Current_Value));
       
-      View.angolo.Create(Form  => view.form,
-                         Value => integer'Image(view.current_value));
+      View.Angolo.Create (Form  => View.Form,
+                          Value => Integer'Image (View.Current_Value));
       
-      view.angolo.Minimum(-45);
-      view.angolo.Maximum(45);
-      view.angolo.Value(view.current_value);
-      view.On_Change_Handler(on_angle_changed'access);
+      View.Angolo.Minimum (-45);
+      View.Angolo.Maximum (45);
+      View.Angolo.Value (View.Current_Value);
+      View.On_Change_Handler (On_Angle_Changed'Access);
+      View.On_Submit_Handler (On_Angle_Changed'Access);
    end Create;
 
 end Beamforming.View;

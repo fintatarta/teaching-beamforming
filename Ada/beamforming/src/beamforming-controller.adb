@@ -63,8 +63,8 @@ package body Beamforming.Controller is
 
          
          Idx    : constant Index_Type := Index_Type (Float (N_Step) * Float (Level));
-         Resto  : constant Level_Type := Level - Level_Type (Float'Floor (Float (Idx) / Float (N_Step)));
-         pragma Unreferenced (Resto);
+--           Resto  : constant Level_Type := Level - Level_Type (Float'Floor (Float (Idx) / Float (N_Step)));
+--           pragma Unreferenced (Resto);
                        
       begin
          return Gnoga.Types.RGBA_Type'(Red   => Colormap (Idx).R,
