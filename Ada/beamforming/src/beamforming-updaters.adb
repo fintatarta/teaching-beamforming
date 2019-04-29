@@ -24,7 +24,7 @@ package body Beamforming.Updaters is
       Max_Level : constant Float := 2.0;
 
       function To_Level (X : Float) return Internal_State.Level_Type
-      is (Internal_State.Level_Type (Float'Min (1.0, X / Max_Level)));
+      is (Internal_State.Level_Type (float'max(0.0, Float'Min (1.0, X / Max_Level))));
 
 
       Sampling_Step    : constant Duration := 0.05;
