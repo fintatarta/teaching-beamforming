@@ -1,6 +1,5 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Beamforming.Internal_State;
-with Beamforming.Weights;
 
 with Gnoga.Gui.Element.Canvas.Context_2D;
 
@@ -8,6 +7,7 @@ package body Beamforming.View is
    Min_Angle : constant Integer := -45;
    Max_Angle : constant Integer :=  45;
 
+   
    procedure On_Angle_Changed (Object : in out Gnoga.Gui.Base.Base_Type'Class)
    is
       use Gnoga.Gui.Element.Form;
@@ -15,11 +15,6 @@ package body Beamforming.View is
       View : Default_View_Type renames Default_View_Type (Object);
       --  Renaming is a convenient way to "upcast" in event handlers
       
-      function To_Weights (Angle : Integer) return Weights.Weight_Vector
-      is
-      begin
-         return Weights.Weight_Vector'(others => 1.0);
-      end To_Weights;
       
       function Clip (X : Integer) return Integer 
       is (Integer'Min (Max_Angle, Integer'Max (X, Min_Angle)));
@@ -42,7 +37,7 @@ package body Beamforming.View is
       View.Angolo_Text.Value (View.Current_Value);
       View.Angolo.Value (View.Current_Value);
       
-      Internal_State.Set_Weights (To_Weights (View.Current_Value));
+      Internal_State.Set_Weights (Float (View.Current_Value));
    end On_Angle_Changed;
    ------------
    -- Create --

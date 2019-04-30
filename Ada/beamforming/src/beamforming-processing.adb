@@ -1,4 +1,6 @@
 pragma Ada_2012;
+with Ada.Numerics.Complex_Types;
+
 package body Beamforming.Processing is
 
    ------------
@@ -47,13 +49,15 @@ package body Beamforming.Processing is
                           W : Weights.Weight_Vector)
                           return Float
    is
-      Result : Float := 0.0;
+      use Ada.Numerics.Complex_Types;
+
+      Result : Complex := (0.0, 0.0);
    begin
       for Ch in Channel_Index loop
-         Result := Result + Float (W (Ch)) * Float (S (Ch));
+         Result := Result + Complex (W (Ch)) * Float(S (Ch));
       end loop;
 
-      return Result;
+      return abs (Result);
    end Mix_Channels;
 
 end Beamforming.Processing;

@@ -52,12 +52,17 @@ begin
          Put_Line (Standard_Error, Audio_Handler.Dump_Info);
         
          
-      when Command_Line.Run =>         
+      when Command_Line.Run =>    
+         Internal_State.Load_Weights (Command_Line.Filter_File);
+         
+         --Weights.Load (Table    => Internal_State.Angle_To_Weights,
+           --            Filename => ;
+         
+         
+         Internal_State.Set_Weights (Angle => 0.0);
+         
          Init_Gui;
          
-         
-         Internal_State.Set_Weights (Command_Line.Channel_Weights);
-            
          
          Audio_Handler.Start (Command_Line.Sampling_Frequency);
          Updaters.Updater_Task.Start;   

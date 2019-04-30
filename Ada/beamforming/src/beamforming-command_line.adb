@@ -47,7 +47,7 @@ package body Beamforming.Command_Line is
             raise Parsing_Error;
          end if;
 
-         Weight := Weights.Weight_Type'Value (Item (Start_Of_Weight .. Item'Last));
+         Weight := Weights.Value (Item (Start_Of_Weight .. Item'Last));
       end Parse_Item;
 
 
@@ -59,7 +59,7 @@ package body Beamforming.Command_Line is
 
       Current_Channel : Channel_Index := Channel_Index'First;
 
-      Result : Weights.Weight_Vector :=  (others => 0.0);
+      Result : Weights.Weight_Vector :=  (others => (0.0, 0.0));
    begin
       if Pieces.Is_Empty then
          raise Parsing_Error;
@@ -107,7 +107,7 @@ package body Beamforming.Command_Line is
             Chosen_Weights := Parse_Weight_Spec (Argument (1));
 
             for I in Chosen_Weights'Range loop
-               Put_Line (I'Img & ": " & Chosen_Weights (I)'Img);
+               Put_Line (I'Img & ": " & Weights.Image(Chosen_Weights (I)));
             end loop;
          when others =>
             raise Parsing_Error;

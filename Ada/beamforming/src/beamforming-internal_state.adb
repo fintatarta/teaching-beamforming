@@ -1,6 +1,8 @@
 pragma Ada_2012;
 package body Beamforming.Internal_State is
 
+   Angle_To_Weights : Weights.Weight_Table;
+
    Is_Stopped : Boolean := False;
 
    protected Current_Level is
@@ -197,5 +199,20 @@ package body Beamforming.Internal_State is
 
    function Stopped return Boolean
    is (Is_Stopped);
+
+   procedure Load_Weights (Filename : String)
+   is
+   begin
+      Weights.Load (Table    => Angle_To_Weights,
+                    Filename => Filename);
+   end Load_Weights;
+
+   procedure Set_Weights (Angle : Float)
+   is
+   begin
+      Set_Weights (Weights.Get_Weights (Table => Angle_To_Weights,
+                                        Angle => Angle));
+   end Set_Weights;
+
 
 end Beamforming.Internal_State;

@@ -7,8 +7,10 @@ package Beamforming.Internal_State is
    function Get_New_Level return Level_Type;
    procedure Set_Level (Level : Level_Type);
 
+   procedure Load_Weights (Filename : String);
    function Get_Weights return Weights.Weight_Vector;
    procedure Set_Weights (Item : Weights.Weight_Vector);
+   procedure Set_Weights (Angle : Float);
 
    function Read_Samples return Sample_Array;
    procedure Write_Samples (Item : Sample_Array);

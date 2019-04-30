@@ -20,5 +20,7 @@ package Beamforming.Command_Line is
    function Sampling_Frequency return Long_Float
    is (44100.0);
 
+   Filter_File : constant String := "filtri.txt";
+
    Parsing_Error : exception;
 end Beamforming.Command_Line;
