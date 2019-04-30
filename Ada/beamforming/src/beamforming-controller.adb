@@ -1,5 +1,4 @@
 with Gnoga.Types;
-with Gnoga.Gui.Element.Canvas.Context_2D;
 with Beamforming.View;
 with Beamforming.Internal_State;
 
@@ -8,8 +7,8 @@ with Beamforming.Internal_State;
 package body Beamforming.Controller is 
    procedure Update (Level : Internal_State.Level_Type);
 
-   View : constant Beamforming.View.Default_View_Access :=
-            new Beamforming.View.Default_View_Type;
+   Main_View : constant Beamforming.View.Default_View_Access :=
+                 new Beamforming.View.Default_View_Type;
    
 
    task Updater;
@@ -29,7 +28,6 @@ package body Beamforming.Controller is
    procedure Update (Level : Internal_State.Level_Type) is
       use Internal_State;
       
-      Ctx : Gnoga.Gui.Element.Canvas.Context_2D.Context_2D_Type;
       
       function Level_To_Color (Level : Level_Type) return Gnoga.Types.RGBA_Type
       is
@@ -63,8 +61,8 @@ package body Beamforming.Controller is
 
          
          Idx    : constant Index_Type := Index_Type (Float (N_Step) * Float (Level));
---           Resto  : constant Level_Type := Level - Level_Type (Float'Floor (Float (Idx) / Float (N_Step)));
---           pragma Unreferenced (Resto);
+         --           Resto  : constant Level_Type := Level - Level_Type (Float'Floor (Float (Idx) / Float (N_Step)));
+         --           pragma Unreferenced (Resto);
                        
       begin
          return Gnoga.Types.RGBA_Type'(Red   => Colormap (Idx).R,
@@ -76,43 +74,11 @@ package body Beamforming.Controller is
       function Level_To_Width (Level : Level_Type; 
                                Width : Integer) return Integer
       is (Integer (Float (Width) * Float (Level)));
+      pragma Unreferenced (Level_To_Width);
    begin
-      Ctx.Get_Drawing_Context_2D (View.Lavagna);
-      
-      Ctx.Fill_Color (Level_To_Color (Level));
-      Ctx.Clear_Rectangle (Beamforming.View.Meter_Area);
-      declare
-         R : Gnoga.Types.Rectangle_Type := Beamforming.View.Meter_Area;
-      begin
-         R.Width := Level_To_Width (Level, Beamforming.View.Meter_Area.Width);
-
-         Ctx.Fill_Rectangle (R);
-      end;
-      
-      
-      Ctx.Stroke_Rectangle (Beamforming.View.Meter_Area);
-      
-      declare
-         N_Steps      : constant Natural := 50;
-         Macro_Step   : constant Natural := 5;
-         Mini_Length  : constant Natural := 5;
-         Macro_Length : constant Natural := 10;
-
-         X_Step       : constant Natural := Beamforming.View.Meter_Area.Width / N_Steps;
-      begin
-         for K in 1 .. N_Steps - 1 loop
-            Ctx.Begin_Path;
-            Ctx.Move_To (X => X_Step * K,
-                         Y => 0);
-            
-            Ctx.Line_To (X => X_Step * K,
-                         Y => (if K mod Macro_Step = 0 
-                               then Macro_Length
-                               else Mini_Length));
-            
-            Ctx.Stroke;
-         end loop;
-      end;
+      View.Draw_Meter (Canvas => Main_View.Lavagna,
+                       Level  => View.Fraction_Type (Level),
+                       Color  => Level_To_Color (Level));
    end Update;
    
 
@@ -121,8 +87,8 @@ package body Beamforming.Controller is
      (Main_Window : in out Gnoga.Gui.Window.Window_Type'Class)
    is
    begin
-      View.Dynamic;
-      View.Create (Main_Window);
+      Main_View.Dynamic;
+      Main_View.Create (Main_Window);
       Update (0.0);
    end Default;
 
