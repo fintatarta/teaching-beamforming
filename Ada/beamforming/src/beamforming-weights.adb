@@ -4,6 +4,7 @@ with Ada.Text_IO;
 with Ada.Strings.Fixed;
 
 use Ada;
+with Ada.IO_Exceptions;
 
 package body Beamforming.Weights is
 
@@ -51,6 +52,7 @@ package body Beamforming.Weights is
             Mode => In_File,
             Name => Filename);
 
+      Skip_Header:
       loop
          declare
             Line : constant String := Get_Line (Input);
@@ -60,18 +62,25 @@ package body Beamforming.Weights is
                N_Channels := Integer (Buffer.Re);
 
                if N_Channels /= Weight_Vector'Length then
-                  raise Constraint_Error with "Bad channel number";
+                  raise Load_Error with "Bad channel number";
                end if;
 
-               exit;
+               exit Skip_Header;
             end if;
          end;
-      end loop;
+      end loop Skip_Header;
 
-      while not End_Of_File (Input) loop
-         Get (Input, Buffer);
+      Read_Filters :
+      loop
+         begin
+            Get (Input, Buffer);
+         exception
+            when Ada.IO_Exceptions.End_Error =>
+               exit read_filters;
+         end;
+
          if Buffer.Im /= 0.0 then
-            raise Constraint_Error with "Angle with immaginary part";
+            raise Load_Error with "Angle with immaginary part";
          end if;
 
          declare
@@ -86,7 +95,7 @@ package body Beamforming.Weights is
          end;
 
          Weight_Map_Sorting.Sort (Table.V);
-      end loop;
+      end loop Read_Filters;
    end Load;
 
    -----------------

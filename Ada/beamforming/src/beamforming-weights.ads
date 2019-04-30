@@ -14,6 +14,8 @@ package Beamforming.Weights is
    procedure Load (Table    : in out Weight_Table;
                    Filename : String);
 
+   Load_Error : exception;
+
    function Get_Weights (Table    : Weight_Table;
                          Angle    : Float)
                          return Weight_Vector;

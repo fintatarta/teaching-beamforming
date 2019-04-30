@@ -121,7 +121,7 @@ package body Beamforming.Command_Line is
    ---------------------
 
    function Action_Required return Action_Type
-   is (Action);
+   is (run);
 --     ----------------------
 --     -- Chosen_Interface --
 --     ----------------------
