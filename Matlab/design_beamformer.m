@@ -87,19 +87,29 @@ middle = K*cos((from+to)/2);
 % the frequency interval [f_lo, f_hi].  The condition of being
 % equal to 1 in middle can be expressed as%
 %
-%     W' * h = 1
+%     W * h = 1
 %
-% where h is the vector of filter coefficients and 
+% where h is the vector of filter coefficients and W is the row vector
 %
 %  W(k) = exp(-j*2*pi*middle*k), k=0, 1, ...
 %
 % It turns out that h can be written as [1, 0, ..., 0]+u where
-% u belongs to the null space of W'
+% u belongs to the null space of W.  Therefore, the problem can 
+% be made unconstrained by searching for the optimal X \in R^{N-1}
+% such that
 %
-%global base_null
+%    h = u0 + B*X
+%
+% minimizes the maximum value of the Fourier transform outside the
+% "bandpass".  In the equation above u0 = [1, 0, ..., 0] and B
+% is a basis of the null space of W'
+%      
+%
+
 
 n = (0:(N-1));
 
+u0 = [1; zeros(N-1, 1)];
 W = exp(j*2*pi*middle*n);
 base_null=null(W);
 
@@ -129,13 +139,13 @@ sampler = exp(j*2*pi*f'*n);
 % Find the component with respect to base_null of the optimal
 % vector orthogonal to W 
 %
-h=fminunc(@(x) objective(x, base_null, sampler), rand(1, 2*(N-1)));
+X=fminunc(@(x) objective(x, u0, base_null, sampler), rand(N-1, 2));
 
 %
 % Apply the basis and add the bias to satisfy the constraint of 
 % unitary response at MIDDLE
 %
-h=[1; zeros(N-1,1)] + base_null*complessify(h);
+h=u0 + base_null*complessify(X);
 
 
 %
@@ -150,14 +160,13 @@ A = exp(j*2*pi*f'*n)*h;
 %
 theta = theta*180/pi;
 
-function x=objective(u, base, sampler)
+function x=objective(u, u0, base, sampler)
 
 u=complessify(u);
-u0=[1; zeros(size(u))];
 h = u0 + base*u;
 
 x=max(abs(sampler*h));
 
 function v=complessify(u)
-v = reshape(u, length(u)/2, 2);
-v =  v * [1; j]; 
+
+v =  u * [1 ; j];
