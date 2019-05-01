@@ -44,6 +44,8 @@ begin
    Utilities.Task_Reaper.Install_Reaper;
    
    Beamforming.Command_Line.Parse;
+   Put_Line (Standard_Error, Beamforming.Command_Line.Passband_File_Spec);
+   
    case Beamforming.Command_Line.Action_Required is
       when Command_Line.Unknown =>
          raise Program_Error; -- We should never arrive here
@@ -53,7 +55,7 @@ begin
         
          
       when Command_Line.Run =>    
-         Internal_State.Load_Weights (Command_Line.Filter_File);
+         Internal_State.Load_Weights (Command_Line.Beamformer_File);
          
          --Weights.Load (Table    => Internal_State.Angle_To_Weights,
            --            Filename => ;

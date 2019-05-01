@@ -1,21 +1,19 @@
 pragma Ada_2012;
 with Ada.Complex_Text_IO;
-with Ada.Text_IO;
 with Ada.Strings.Fixed;
 
 use Ada;
-with Ada.IO_Exceptions;
-
+with Utilities.Simple_Octave_IO;
 package body Beamforming.Weights is
 
    function Value (X : String) return Weight_Type
    is
-      Last : Positive;
-      Buffer: Complex;
+      Last   : Positive;
+      Buffer : Complex;
    begin
-      Complex_Text_IO.Get (From => x,
-                           Item => buffer,
-                           Last => last);
+      Complex_Text_IO.Get (From => X,
+                           Item => Buffer,
+                           Last => Last);
 
       return Weight_Type (Buffer);
    end Value;
@@ -40,62 +38,50 @@ package body Beamforming.Weights is
      (Table    : in out Weight_Table;
       Filename : String)
    is
-      use Text_IO;
-      use Complex_Text_IO;
-
-      Input : File_Type;
       N_Channels : Integer;
-      Buffer : Complex;
-      Last : Natural;
+      Buffer     : Utilities.Simple_Octave_IO.Complex_Vectors.Vector;
    begin
-      Open (File => Input,
-            Mode => In_File,
-            Name => Filename);
+      Buffer := Utilities.Simple_Octave_IO.Load_Octave_Complex_Vector (Filename);
 
-      Skip_Header:
-      loop
-         declare
-            Line : constant String := Get_Line (Input);
-         begin
-            if Line (Line'First) /= '#' then
-               Get (Line, Buffer, Last);
-               N_Channels := Integer (Buffer.Re);
+      if Buffer.First_Element.Im /= 0.0 then
+         raise Load_Error with "First entry with non-zero immaginary part";
+      end if;
 
-               if N_Channels /= Weight_Vector'Length then
-                  raise Load_Error with "Bad channel number";
-               end if;
+      N_Channels := Integer (Buffer.First_Element.Re);
 
-               exit Skip_Header;
-            end if;
-         end;
-      end loop Skip_Header;
+      if N_Channels > Weight_Vector'Length then
+         raise Load_Error with "Too many channels";
+      end if;
 
-      Read_Filters :
-      loop
-         begin
-            Get (Input, Buffer);
-         exception
-            when Ada.IO_Exceptions.End_Error =>
-               exit read_filters;
-         end;
+      Buffer.Delete_First;
 
-         if Buffer.Im /= 0.0 then
-            raise Load_Error with "Angle with immaginary part";
+      while not Buffer.Is_Empty loop
+         if Buffer.First_Element.Im /= 0.0 then
+            raise Load_Error with "Angle with non-zero immaginary part";
          end if;
 
-         declare
-            Item : Table_Entry := Table_Entry'(Angle   => Buffer.Re,
-                                               Weights => <>);
-         begin
-            for K in Channel_Index loop
-               Get (Input, Complex (Item.Weights (K)));
-            end loop;
 
+         declare
+            Item : Table_Entry := Table_Entry'(Angle   => Buffer.First_Element.Re,
+                                               Weights => (others => (0.0, 0.0)));
+         begin
+            Buffer.Delete_First;
+
+            for K in 1 .. Channel_Index (N_Channels) loop
+               if Buffer.Is_Empty then
+                  raise Load_Error with "Unexpected end of data";
+               end if;
+
+               Item.Weights (K) := Weight_Type (Buffer.First_Element);
+               Buffer.Delete_First;
+            end loop;
             Table.V.Append (Item);
          end;
+      end loop;
 
-         Weight_Map_Sorting.Sort (Table.V);
-      end loop Read_Filters;
+
+      Weight_Map_Sorting.Sort (Table.V);
+
    end Load;
 
    -----------------

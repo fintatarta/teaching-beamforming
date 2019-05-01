@@ -1,18 +1,29 @@
 pragma Ada_2012;
 with Ada.Text_IO;
+--  with Ada.Complex_Text_IO;
 with Ada.Exceptions;
 with Ada.Calendar;
+with Ada.Numerics.Complex_Types;
 
 with Utilities.Timed_Logging;
 pragma Warnings (Off, Utilities.Timed_Logging);
 
+with Utilities.Simple_Octave_IO;
+
 with Beamforming.Internal_State;
 with Beamforming.Processing;
+with Beamforming.Command_Line;
 
 use Ada;
+--  with Ada.IO_Exceptions;
 
 package body Beamforming.Updaters is
 
+   function Load_Spec (Filename : String) return Processing.Filter_Spec
+   is
+   begin
+      return Utilities.Simple_Octave_IO.Load_Octave_Complex_Vector (Filename);
+   end Load_Spec;
 
    ------------------
    -- Updater_Task --
@@ -20,6 +31,7 @@ package body Beamforming.Updaters is
 
    task body Updater_Task is
       use type Calendar.Time;
+      use Ada.Numerics.Complex_Types;
 
       Max_Level : constant Float := 2.0;
 
@@ -31,7 +43,8 @@ package body Beamforming.Updaters is
       Next_Output_Time : Calendar.Time;
 
       Filter           : Processing.Averaging_Filter := Processing.Create (12);
-      Current_Mix      : Float;
+      Bandpass         : Processing.FIR;
+      Current_Mix      : Complex;
       Averaged_Mix     : Float;
 
 --        Logger           : Utilities.Timed_Logging.Logger;
@@ -41,6 +54,8 @@ package body Beamforming.Updaters is
       or
          terminate;
       end select;
+
+      Bandpass.Impulse_Response (Load_Spec (Command_Line.Passband_File_Spec));
 
       Next_Output_Time := Calendar.Clock;
 
@@ -53,7 +68,9 @@ package body Beamforming.Updaters is
             Current_Mix := Processing.Mix_Channels (Internal_State.Read_Samples,
                                                     Internal_State.Get_Weights);
 
-            Averaged_Mix := Processing.Smooth (Filter, Current_Mix ** 2);
+            Current_Mix := Bandpass.Filter (Current_Mix);
+
+            Averaged_Mix := Processing.Smooth (Filter, Modulus (Current_Mix) ** 2);
 
 --              Logger.Print (Current_Mix'Img);
 

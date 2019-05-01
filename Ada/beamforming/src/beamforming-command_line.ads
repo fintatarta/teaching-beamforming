@@ -8,8 +8,8 @@ package Beamforming.Command_Line is
 
    function Action_Required return Action_Type;
 
---     function Chosen_Interface return Audio.Interface_Index
---       with Pre => Action_Required = Run;
+   --     function Chosen_Interface return Audio.Interface_Index
+   --       with Pre => Action_Required = Run;
 
    function Channel_Weights return Weights.Weight_Vector
      with Pre => Action_Required = Run;
@@ -17,10 +17,11 @@ package Beamforming.Command_Line is
    function Last_Channel return Channel_Index
      with Pre => Action_Required = Run;
 
-   function Sampling_Frequency return Long_Float
-   is (44100.0);
+   function Sampling_Frequency return Long_Float;
 
-   Filter_File : constant String := "filtri.txt";
+   function Beamformer_File return String;
+
+   function Passband_File_Spec return String;
 
    Parsing_Error : exception;
 end Beamforming.Command_Line;

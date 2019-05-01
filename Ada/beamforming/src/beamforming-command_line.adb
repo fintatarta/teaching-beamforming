@@ -11,9 +11,28 @@ package body Beamforming.Command_Line is
    use Ada.Command_Line;
    use Ada.Strings;
 
+   Beamformer_Data_Dir  : constant String := "data";
+   Beamformer_Data_Root : constant String := "beamformer";
+   Beamformer_File_Ext  : constant String := "txt";
+
+   Sampling_Frequency_Hz  : Positive := 44_100;
+   Signal_Frequency_Hz    : Positive := 3000;
+   Microphone_Distance_Cm : Positive := 5;
+   Angle_Width_Deg        : Positive := 15;
+   pragma Warnings (Off, Sampling_Frequency_Hz);
+   pragma Warnings (Off, Signal_Frequency_Hz);
+   pragma Warnings (Off, Microphone_Distance_Cm);
+   pragma Warnings (Off, Angle_Width_Deg);
+
+   Passband_Data_Dir  : constant String := "data";
+   Passband_spec_Root : constant String := "passband";
+   Passband_File_Ext  : constant String := "txt";
+
+   Bandwidth_Hz    : Positive := 30;
+   pragma Warnings (Off, Bandwidth_Hz);
 
    Action         : Action_Type := Unknown;
---     Use_Interface  : Audio.Interface_Index;
+   --     Use_Interface  : Audio.Interface_Index;
    Chosen_Weights : Weights.Weight_Vector;
 
    -----------------------
@@ -102,12 +121,12 @@ package body Beamforming.Command_Line is
 
          when 1 =>
             Action := Run;
---              Use_Interface := Audio.Interface_Index'Value (Argument (1));
+            --              Use_Interface := Audio.Interface_Index'Value (Argument (1));
 
             Chosen_Weights := Parse_Weight_Spec (Argument (1));
 
             for I in Chosen_Weights'Range loop
-               Put_Line (I'Img & ": " & Weights.Image(Chosen_Weights (I)));
+               Put_Line (I'Img & ": " & Weights.Image (Chosen_Weights (I)));
             end loop;
          when others =>
             raise Parsing_Error;
@@ -121,13 +140,13 @@ package body Beamforming.Command_Line is
    ---------------------
 
    function Action_Required return Action_Type
-   is (run);
---     ----------------------
---     -- Chosen_Interface --
---     ----------------------
---
---     function Chosen_Interface return Audio.Interface_Index
---     is (Use_Interface);
+   is (Run);
+   --     ----------------------
+   --     -- Chosen_Interface --
+   --     ----------------------
+   --
+   --     function Chosen_Interface return Audio.Interface_Index
+   --     is (Use_Interface);
 
    ---------------------
    -- Channel_Weights --
@@ -142,5 +161,64 @@ package body Beamforming.Command_Line is
 
    function Last_Channel return Channel_Index
    is (Chosen_Weights'Last);
+
+   ------------------------------
+   -- Make_Beamformer_Filename --
+   ------------------------------
+
+   function Make_Beamformer_Filename (Freq   : Positive;
+                                      Step   : Positive;
+                                      Margin : Positive)
+                                      return String
+   is
+      use Ada.Strings.Fixed;
+   begin
+      return  Beamformer_Data_Dir
+        & "/" & Beamformer_Data_Root
+        & "-" & Trim (Integer'Image (Freq), Both) & "Hz"
+        & "-" & Trim (Integer'Image (Step), Both) & "cm"
+        & "-" & Trim (Integer'Image (Margin), Both) & "deg"
+        & "." & Beamformer_File_Ext;
+   end Make_Beamformer_Filename;
+
+   ----------------------------
+   -- Make_Passband_Filename --
+   ----------------------------
+
+   function Make_Passband_Filename (Center_Band        : Positive;
+                                    Bandwidth          : Positive;
+                                    Sampling_Frequency : Positive)
+                                    return String
+   is
+      use Ada.Strings.Fixed;
+
+      ------------
+      -- Format --
+      ------------
+
+      function Format (Freq               : Positive;
+                       Sampling_Frequency : Positive)
+                       return String
+      is (Trim (Integer'Image ((10_000 * Freq) / Sampling_Frequency), Both));
+   begin
+      return  Passband_Data_Dir
+        & "/" & Passband_Spec_Root
+        & "-" & Format (Center_Band, Sampling_Frequency)
+        & "+" & Format (Bandwidth, Sampling_Frequency)
+        & "." & Passband_File_Ext;
+   end Make_Passband_Filename;
+
+   function Beamformer_File return String
+   is (Make_Beamformer_Filename (Freq   => Signal_Frequency_Hz,
+                                 Step   => Microphone_Distance_Cm,
+                                 Margin => Angle_Width_Deg));
+
+   function Passband_File_Spec return String
+   is (Make_Passband_Filename (Center_Band        => Signal_Frequency_Hz,
+                               Bandwidth          => Bandwidth_Hz,
+                               Sampling_Frequency => Sampling_Frequency_Hz));
+
+   function Sampling_Frequency return Long_Float
+   is (Long_Float (Sampling_Frequency_Hz));
 
 end Beamforming.Command_Line;
