@@ -1,6 +1,5 @@
 pragma Ada_2012;
 with Ada.Text_IO;
---  with Ada.Complex_Text_IO;
 with Ada.Exceptions;
 with Ada.Calendar;
 with Ada.Numerics.Complex_Types;
@@ -15,7 +14,6 @@ with Beamforming.Processing;
 with Beamforming.Command_Line;
 
 use Ada;
---  with Ada.IO_Exceptions;
 
 package body Beamforming.Updaters is
 
@@ -88,33 +86,3 @@ package body Beamforming.Updaters is
    end Updater_Task;
 
 end Beamforming.Updaters;
---     task type Gateway_Type is
---        entry Set_Sampling (X : Duration);
---        entry Update (L : Internal_State.Level_Type);
---  --        entry Stop;
---     end Gateway_Type;
---
---     task body Gateway_Type is
---        T : Duration;
---     begin
---        select
---           accept Set_Sampling (X : Duration) do
---              T := X;
---           end Set_Sampling;
---        or
---           terminate;
---        end select;
---
---        loop
---           delay T;
---
---           select
---              accept Update (L : Internal_State.Level_Type) do
---                 Internal_State.Set_Level (L);
---                 Ada.Text_IO.Put_Line (L'Img);
---              end;
---           or
---              terminate;
---           end select;
---        end loop;
---     end Gateway_Type;
