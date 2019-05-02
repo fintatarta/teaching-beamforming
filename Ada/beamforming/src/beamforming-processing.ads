@@ -37,6 +37,14 @@ package Beamforming.Processing is
                     return Numerics.Complex_Types.Complex
      with Pre => not Item.Is_Empty;
 
+   type IIR is tagged private;
+
+   function Is_Empty (F : IIR) return Boolean;
+
+   procedure Set (Filter : in out IIR;
+                  Num    : Filter_Spec;
+                  Den    : Filter_Spec);
+
    function Mix_Channels (S : Sample_Array;
                           W : Weights.Weight_Vector)
                           return Numerics.Complex_Types.Complex;
