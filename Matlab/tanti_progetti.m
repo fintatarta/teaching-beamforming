@@ -2,7 +2,7 @@
 distanza_m = 5.0e-2;
 frequenza_Hz = 3000;
 angoli = -45:5:45;
-margine = 15;
+margine = 10;
 N = 8;
 filtri = [];
 
@@ -28,5 +28,5 @@ filename=sprintf('%s/%s-%dHz-%dcm-%ddeg.txt', ...
 		 round(distanza_m*100), ...
 		 margine)
 
-%save(filename, 'tmp');
+save(filename, 'tmp');
 %save filtri.txt tmp
