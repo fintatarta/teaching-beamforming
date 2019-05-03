@@ -17,12 +17,12 @@ use Ada;
 
 package body Beamforming.Updaters is
 
-   function Load_Spec (Filename : String) return Processing.Complex_Dsp.Filter_Spec
-   is
-   begin
-      return Utilities.Simple_Octave_IO.Load_Octave_Complex_Vector (Filename);
-   end Load_Spec;
-   pragma Unreferenced (Load_Spec);
+--     function Load_Spec (Filename : String) return Processing.Complex_Dsp.Filter_Spec
+--     is
+--     begin
+--        return Utilities.Simple_Octave_IO.Load_Octave_Complex_Vector (Filename);
+--     end Load_Spec;
+--     pragma Unreferenced (Load_Spec);
 
    ------------------
    -- Updater_Task --

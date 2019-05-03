@@ -3,6 +3,7 @@ with "gnoga";
 with "Pulsada/pulsada";
 with "Tokenizer/tokenizer";
 with "ALSA/ALSA-binding/alsa_binding";
+with "DSP/generic_dsp.gpr";
 
 project Beamforming is
 

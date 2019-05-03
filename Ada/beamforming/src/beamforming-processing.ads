@@ -1,22 +1,22 @@
 with Beamforming.Weights;
 with Ada.Numerics.Complex_Types;
 
-with Utilities.Simple_Octave_IO;
+--  with Utilities.Simple_Octave_IO;
 
-with DSP;
+with DSP.Functions;
 
 use Ada;
 
 package Beamforming.Processing is
    use type Ada.Numerics.Complex_Types.Complex;
 
-   package Complex_Vectors renames
-     Utilities.Simple_Octave_IO.Complex_Vectors;
-
-   package Complex_Dsp is
-     new DSP (Scalar_Type    => Ada.Numerics.Complex_Types.Complex,
-              To_Scalar      => Ada.Numerics.Complex_Types.Compose_From_Cartesian,
-              Scalar_Vectors => Complex_Vectors);
+--     package Complex_Vectors renames
+--       Utilities.Simple_Octave_IO.Complex_Vectors;
+--
+--     package Complex_Dsp is
+--       new DSP (Scalar_Type    => Ada.Numerics.Complex_Types.Complex,
+--                To_Scalar      => Ada.Numerics.Complex_Types.Compose_From_Cartesian,
+--                Scalar_Vectors => Complex_Vectors);
 
    type Averaging_Filter (<>) is private;
 
