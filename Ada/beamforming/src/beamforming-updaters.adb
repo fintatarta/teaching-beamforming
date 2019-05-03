@@ -7,11 +7,13 @@ with Ada.Numerics.Complex_Types;
 with Utilities.Timed_Logging;
 pragma Warnings (Off, Utilities.Timed_Logging);
 
-with Utilities.Simple_Octave_IO;
+--  with Utilities.Simple_Octave_IO;
 
 with Beamforming.Internal_State;
 with Beamforming.Processing;
 with Beamforming.Command_Line;
+
+with Dsp.Functions;   use Dsp.Functions;
 
 use Ada;
 
@@ -31,7 +33,6 @@ package body Beamforming.Updaters is
    task body Updater_Task is
       use type Calendar.Time;
       use Ada.Numerics.Complex_Types;
-      use Processing.Complex_Dsp;
 
       Max_Level : constant Float := 2.0;
 
@@ -43,7 +44,7 @@ package body Beamforming.Updaters is
       Next_Output_Time : Calendar.Time;
 
       Filter           : Processing.Averaging_Filter := Processing.Create (12);
-      Bandpass         : IIR;
+      Bandpass         : Complex_IIR;
       Current_Mix      : Complex;
       Smoothed_Power   : Float;
 
@@ -55,9 +56,10 @@ package body Beamforming.Updaters is
          terminate;
       end select;
 
-      Bandpass.Set (Notch_Specs (Freq        => Command_Line.Signal_Freq / Command_Line.Sampling_Frequency,
-                                 Pole_Radius => 0.99,
-                                 Class       => Passband));
+      Bandpass.Set (Notch_Specs
+                    (Freq        => Command_Line.Signal_Freq / Command_Line.Sampling_Frequency,
+                     Pole_Radius => 0.99,
+                     Class       => Passband));
 
       Next_Output_Time := Calendar.Clock;
 

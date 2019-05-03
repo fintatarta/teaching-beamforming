@@ -2,7 +2,7 @@ package Beamforming is
    pragma Pure;
 
 
-   type Channel_Index is range 0 .. 7;
+   type Channel_Index is range 1 .. 8;
 
    subtype Sample_Type is Float range -1.0 .. 1.0;
 

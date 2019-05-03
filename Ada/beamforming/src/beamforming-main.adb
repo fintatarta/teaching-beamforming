@@ -66,7 +66,7 @@ begin
          Init_Gui;
          
          
-         Audio_Handler.Start (Command_Line.Sampling_Frequency);
+         Audio_Handler.Start (Long_Float (Command_Line.Sampling_Frequency));
          Updaters.Updater_Task.Start;   
            
          Gnoga.Application.Singleton.Message_Loop;            
