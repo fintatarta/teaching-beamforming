@@ -218,7 +218,10 @@ package body Beamforming.Command_Line is
                                Bandwidth          => Bandwidth_Hz,
                                Sampling_Frequency => Sampling_Frequency_Hz));
 
-   function Sampling_Frequency return Long_Float
-   is (Long_Float (Sampling_Frequency_Hz));
+   function Sampling_Frequency return Float
+   is (Float (Sampling_Frequency_Hz));
+
+   function Signal_Freq return Float
+   is (Float (Signal_Frequency_Hz));
 
 end Beamforming.Command_Line;

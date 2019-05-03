@@ -59,4 +59,38 @@ package body Beamforming.Processing is
       return Result;
    end Mix_Channels;
 
+   ----------------------
+   -- Impulse_Response --
+   ----------------------
+
+   procedure Impulse_Response (Filter : in out FIR;
+                               Spec   : Filter_Spec)
+   is
+      use Complex_Vectors;
+   begin
+      Filter := Fir'(Spec   => Spec,
+                     Buffer => To_Vector (New_Item => (0.0,0.0),
+                                          Length   => Spec.Length));
+   end Impulse_Response;
+
+   ------------
+   -- Filter --
+   ------------
+
+   function Filter (Item  : in out FIR;
+                    Input : Numerics.Complex_Types.Complex)
+                    return Numerics.Complex_Types.Complex
+   is
+      use Ada.Numerics.Complex_Types;
+
+      Result : constant Complex := Input * Item.Spec (0)+ Item.Buffer.First_Element;
+   begin
+      for K in Item.Spec.First_Index .. Item.Spec.Last_Index - 1 loop
+         Item.Buffer (K) := Item.Buffer (K + 1) + Input * Item.Spec (K - Item.Spec.First_Index);
+      end loop;
+
+      return Result;
+   end Filter;
+
+
 end Beamforming.Processing;

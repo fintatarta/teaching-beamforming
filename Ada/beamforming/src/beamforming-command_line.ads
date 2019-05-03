@@ -17,11 +17,13 @@ package Beamforming.Command_Line is
    function Last_Channel return Channel_Index
      with Pre => Action_Required = Run;
 
-   function Sampling_Frequency return Long_Float;
+   function Sampling_Frequency return Float;
 
    function Beamformer_File return String;
 
    function Passband_File_Spec return String;
+
+   function Signal_Freq return Float;
 
    Parsing_Error : exception;
 end Beamforming.Command_Line;

@@ -1,8 +1,10 @@
 with Ada.Containers.Vectors;
+with Ada.Finalization;
 
 generic
    type Scalar_Type is private;
-   Zero :  Scalar_Type;
+
+   with function To_Scalar (X : Float) return Scalar_Type;
 
    with function "*" (X, Y : Scalar_Type) return Scalar_Type is <>;
    with function "+" (X, Y : Scalar_Type) return Scalar_Type is <>;
@@ -12,23 +14,20 @@ generic
      new Ada.Containers.Vectors (Index_Type   => <>,
                                  Element_Type => Scalar_Type);
 package DSP is
-   type Filter_Type is interface;
+   subtype Normalized_Frequency is  Float range 0.0 .. 1.0;
+
+   type Filter_Type is limited interface;
 
    function Filter (Item  : in out Filter_Type;
                     Input : Scalar_Type)
                     return Scalar_Type
                     is abstract;
 
---     type Mobile_Average (<>) is new Filter_Type private;
---
---     procedure Set (N : Positive := 12) return Mobile_Average;
---
---     function Filter (Filter : in out Mobile_Average;
---                      Input  : Scalar_Type)
---                      return Scalar_Type;
 
-
-   type FIR is new Filter_Type with private;
+   type FIR is
+     new Ada.Finalization.Limited_Controlled
+     and Filter_Type
+   with private;
 
    function Filter (Item  : in out FIR;
                     Input : Scalar_Type)
@@ -44,7 +43,10 @@ package DSP is
        Pre => Filter.Is_Empty,
        Post => not Filter.Is_Empty;
 
-   type IIR is new Filter_Type with private;
+   type IIR is
+     new Ada.Finalization.Limited_Controlled
+     and Filter_Type
+   with private;
 
    function Filter (Item  : in out IIR;
                     Input : Scalar_Type)
@@ -52,42 +54,83 @@ package DSP is
 
    function Is_Empty (F : IIR) return Boolean;
 
-   procedure Set (Filter      : in out IIR;
-                  Numerator   : Filter_Spec;
-                  Denominator : Filter_Spec)
+   type IIR_Spec is
+      record
+         Numerator   : Filter_Spec;
+         Denominator : Filter_Spec;
+      end record;
+
+   procedure Set (Filter : in out IIR;
+                  Specs  : IIR_Spec)
      with
        Pre => Filter.Is_Empty,
        Post => not Filter.Is_Empty;
 
+   type Notch_Type is (Passband, Stopband);
+
+   function Notch_Specs (Freq        : Normalized_Frequency;
+                         Pole_Radius : Float;
+                         Class       : Notch_Type := Stopband)
+                         return IIR_Spec;
+
 private
-   use type Ada.Containers.Count_Type;
-   use type Scalar_Vectors.Index_Type;
 
-   type FIR is new Filter_Type with
+   type Scalar_Array is array (Natural range <>) of Scalar_Type;
+
+   type Scalar_Array_Access is access Scalar_Array;
+
+   type FIR is
+     new Ada.Finalization.Limited_Controlled
+     and Filter_Type with
       record
-         Spec   : Scalar_Vectors.Vector := Scalar_Vectors.Empty_Vector;
-         Buffer : Scalar_Vectors.Vector := Scalar_Vectors.Empty_Vector;
+         Spec   : Scalar_Array_Access := null;
+         Buffer : Scalar_Array_Access := null;
       end record
-     with Type_Invariant => (Spec.Length = Buffer.Length)
-     and (Spec.Length = 0 or else Spec.First_Index = 0);
+     with Type_Invariant =>
+       ((Spec = null) = (Buffer = null))
+       and then
+         (Spec = null
+          or else
+            (Spec.all'First = 0
+             and Buffer.all'First = 1
+             and Buffer.all'Last = Spec.all'Last));
 
+   overriding procedure Finalize (Object : in out FIR);
 
    function Is_Empty (F : Fir) return Boolean
-   is (F.Spec.Is_Empty);
+   is (F.Spec = null);
 
-   type IIR is new Filter_Type with
+
+   type IIR is
+     new Ada.Finalization.Limited_Controlled
+     and Filter_Type with
       record
-         Num    : Scalar_Vectors.Vector := Scalar_Vectors.Empty_Vector;
-         Den    : Scalar_Vectors.Vector := Scalar_Vectors.Empty_Vector;
-         Buffer : Scalar_Vectors.Vector := Scalar_Vectors.Empty_Vector;
+         Num    : Scalar_Array_Access := null;
+         Den    : Scalar_Array_Access := null;
+         Buffer : Scalar_Array_Access := null;
       end record
-     with Type_Invariant => (Num.Length = Buffer.Length)
-     and (Den.Length = Buffer.Length)
-     and (Num.Length = 0 or else Num.First_Index = 0)
-     and (Den.Length = 0 or else Den.First_Index = 0);
+     with Type_Invariant =>
+       ((Num = null) = (Den = null) and (Num = null) = (Buffer = null))
+       and then
+         (Num = null
+          or else
+            (Num.all'First = 0
+             and Den.all'First = 1
+             and Buffer.all'First = 1
+             and Buffer.all'Last = Num.all'Last
+             and Buffer.all'Last = Den.all'Last));
 
+   overriding procedure Finalize (Object : in out IIR);
 
    function Is_Empty (F : IIR) return Boolean
-   is (F.Num.Is_Empty);
+   is (F.Num = null);
 
 end DSP;
+--     type Mobile_Average (<>) is new Filter_Type private;
+--
+--     procedure Set (N : Positive := 12) return Mobile_Average;
+--
+--     function Filter (Filter : in out Mobile_Average;
+--                      Input  : Scalar_Type)
+--                      return Scalar_Type;
+
