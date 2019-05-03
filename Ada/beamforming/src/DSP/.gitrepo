@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://fintatarta@github.com/fintatarta/generic-dsp.git
+	branch = master
+	commit = 5ea2a9706230a7234264ae9ebb1077e84e0230f3
+	parent = 8658e57400bdb75ac818acd0bcb65eef407f22dd
+	method = merge
+	cmdver = 0.4.0

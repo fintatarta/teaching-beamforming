@@ -1,0 +1,15 @@
+obj/*.ali
+obj/*.o
+obj/*.a*
+
+*~
+*.o
+*.ali
+empty-loc.xml
+gnatinspect.db
+obj/*.xml
+obj/*.cgpr
+obj/gnatinspect.*
+obj/*cswi
+obj/*bexch
+bin/[a-z]*
