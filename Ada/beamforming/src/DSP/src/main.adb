@@ -9,7 +9,7 @@ procedure Main is
    use Ada;
    use Ada.Numerics.Complex_Types;
 
-   F1 : Complex_FIR;
+   F1 : Real_FIR;
    F2 : Complex_IIR;
    F3 : Complex_IIR;
 
@@ -39,15 +39,15 @@ procedure Main is
 
    Tmp : Float;
 begin
-   F1.Set (Scalar_Array'(0 => 1.0, 1 => 2.0, 2 => 3.0));
+   F1.Set (Real_Filters.Coefficient_Array'(0 => 1.0, 1 => 2.0, 2 => 3.0));
 
    for K in 0 .. 5 loop
-      Put (F1.Filter (Delta_Signal (K)));
+      Text_IO.Put (F1.Filter (Delta_Signal (K))'img);
       Text_IO.New_Line;
    end loop;
 
-   F2.Set (Numerator => Scalar_Array'(0 => 1.0),
-           Denominator => Scalar_Array'(0 => 1.0, 1 => -0.5));
+   F2.Set (Numerator => Complexify (Real_Filters.Coefficient_Array'(0 => 1.0)),
+           Denominator => Complexify(Real_Filters.Coefficient_Array'(0 => 1.0, 1 => -0.5)));
 
 
    Text_IO.Put_Line ("------------");
