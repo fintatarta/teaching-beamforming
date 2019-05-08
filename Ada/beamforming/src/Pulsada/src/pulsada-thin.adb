@@ -33,7 +33,8 @@ package body Pulsada.Thin is
       Sample_Spec : aliased Pa_Sample_Spec := (Format   => PA_SAMPLE_S16LE,
                                                Rate     => Unsigned_32 (Rate),
                                                Channels => Unsigned_8 (N_Channels));
-   begin
+      Err         : aliased C.Int;
+      begin
       Session.S := Pa_Simple_New
         (Server      => C.Strings.Null_Ptr,
          Name        => Use_Default (Application_Name, Command_Line.Command_Name),
@@ -43,7 +44,12 @@ package body Pulsada.Thin is
          Ss          => Sample_Spec'Access,
          Map         => null,
          Attr        => null,
-         Error       => null);
+         Error       => Err'Access);
+
+      if Session.S = null then
+         raise Constraint_Error with
+           "PULSE[" & Interfaces.C.Strings.Value (Pa_Strerror (Err)) & "]";
+      end if;
    end Open;
 
    ----------

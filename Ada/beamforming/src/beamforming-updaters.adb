@@ -72,7 +72,7 @@ package body Beamforming.Updaters is
             Current_Mix := Processing.Mix_Channels (Internal_State.Read_Samples,
                                                     Internal_State.Get_Weights);
 
-            Current_Mix := Bandpass.Filter (Current_Mix);
+--              Current_Mix := Bandpass.Filter (Current_Mix);
 
             Smoothed_Power := Processing.Smooth (Filter, Modulus (Current_Mix) ** 2);
 

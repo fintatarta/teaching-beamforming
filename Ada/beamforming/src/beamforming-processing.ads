@@ -3,8 +3,6 @@ with Ada.Numerics.Complex_Types;
 
 --  with Utilities.Simple_Octave_IO;
 
-with DSP.Functions;
-
 use Ada;
 
 package Beamforming.Processing is

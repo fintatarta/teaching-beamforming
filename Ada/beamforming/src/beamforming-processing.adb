@@ -1,5 +1,8 @@
 pragma Ada_2012;
 
+with Beamforming.Debug;
+
+
 package body Beamforming.Processing is
 
    ------------
@@ -56,6 +59,7 @@ package body Beamforming.Processing is
          Result := Result + Complex (W (Ch)) * Float(S (Ch));
       end loop;
 
+      Beamforming.Debug.Append (S, Result);
       return Result;
    end Mix_Channels;
 

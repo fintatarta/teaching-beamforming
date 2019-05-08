@@ -11,6 +11,7 @@ with Beamforming.Command_Line;
 with Beamforming.Audio.Pulse;
 with Beamforming.Internal_State;
 with Beamforming.Updaters;
+with Beamforming.Debug;
 
 with Utilities.Task_Reaper;
 
@@ -39,7 +40,7 @@ procedure Beamforming.Main is
    
    use type Beamforming.Command_Line.Action_Type;
    
-   Audio_Handler : Audio.Pulse.Pulse_Handler := Audio.Pulse.Create (N_Channels => 2);
+   Audio_Handler : Audio.Pulse.Pulse_Handler := Audio.Pulse.Create (N_Channels => 6);
 begin
    Utilities.Task_Reaper.Install_Reaper;
    
@@ -71,6 +72,8 @@ begin
            
          Gnoga.Application.Singleton.Message_Loop;            
    end case;
+   
+   Beamforming.Debug.Dump;
    
    Internal_State.Stop;
 exception
