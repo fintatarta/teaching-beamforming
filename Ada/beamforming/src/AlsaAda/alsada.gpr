@@ -1,0 +1,28 @@
+project Alsada is
+
+   for Object_Dir use "obj";
+   type Mode_Type is
+      ("production", "development");
+   Mode : Mode_Type := external ("mode", "development");
+
+   package Compiler is
+      for Switches ("ada") use ("-gnatVars", "-gnatwa", "-gnata", "-g", "-gnat12");
+   end Compiler;
+
+   package Binder is
+      for Switches ("ada") use ("-E");
+   end Binder;
+
+   case Mode is
+
+      when "production" =>
+         for Source_Dirs use ("src");
+         for Main use ();
+
+      when "development" =>
+         for Source_Dirs use ("src", "src/test");
+         for Main use ("main.adb");
+   end case;
+
+end Alsada;
+
