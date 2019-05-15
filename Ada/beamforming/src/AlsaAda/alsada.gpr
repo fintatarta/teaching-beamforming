@@ -20,8 +20,7 @@ project Alsada is
          for Main use ();
 
       when "development" =>
-         for Source_Dirs use ("src", "src/test");
-         for Main use ("main.adb");
+         for Source_Dirs use ("src");
    end case;
 
 end Alsada;
