@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:fintatarta/alsada.git
 	branch = master
-	commit = 4f50c542b0e270805ebb2230a0da435e1b8ff57d
+	commit = 4874134d3570409ce3ed630217d6fa22304db407
 	parent = 44f4083cdaced6642f4abdf55c73526713ab2192
 	method = merge
 	cmdver = 0.4.0

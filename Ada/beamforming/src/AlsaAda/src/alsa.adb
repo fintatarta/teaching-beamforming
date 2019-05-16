@@ -7,6 +7,8 @@ with Alsa.Thin;
 with System.Address_To_Access_Conversions;
 
 package body Alsa is
+   pragma Linker_Options ("-lasound");
+
    use Interfaces.C,
        Interfaces.C.Strings;
 
@@ -18,17 +20,6 @@ package body Alsa is
                        Seq     => New_Char_Array ("seq"));
 
 
-   --     type Hint_Ptr_Ptr is access Hint_Ptr
-   --       with Convention => C;
-   --
-   --     package Data_Buffer_Pointers is
-   --       new Interfaces.C.Pointers (Index              => Natural,
-   --                                  Element            => Interfaces.Integer_32,
-   --                                  Element_Array      => Data_Buffer,
-   --                                  Default_Terminator => 0);
-
-
-   pragma Linker_Options ("-lasound");
 
    function Snd_Device_Name_Hint (Card           : Int;
                                   Interface_Name : Chars_Ptr;
@@ -248,9 +239,6 @@ package body Alsa is
       return Positive (Result);
    end Rate_Max;
 
-   procedure Start_Device (Dev : in out Alsa_Device)
-     with Pre => Status (Dev) = Open,
-     Post => Status (Dev) = Running;
 
    ------------------
    -- Start_Device --

@@ -299,45 +299,6 @@ package Alsa is
        Pre => Status (Dev) = Closed,
      Post => Status (Dev) = Open;
 
-   type Buffer_Signed_8 is array (Natural range <>)
-     of aliased Interfaces.Integer_8;
-
-   type Buffer_Signed_16 is array (Natural range <>)
-     of aliased Interfaces.Integer_16;
-
-   type Buffer_Signed_32 is array (Natural range <>)
-     of aliased Interfaces.Integer_32;
-
-   type Buffer_Signed_64 is array (Natural range <>)
-     of aliased Interfaces.Integer_64;
-
-
-
-   type Buffer_Unsigned_8 is array (Natural range <>)
-     of aliased Interfaces.Unsigned_8;
-
-   type Buffer_Unsigned_16 is array (Natural range <>)
-     of aliased Interfaces.Unsigned_16;
-
-   type Buffer_Unsigned_32 is array (Natural range <>)
-     of aliased Interfaces.Unsigned_32;
-
-   type Buffer_Unsigned_64 is array (Natural range <>)
-     of aliased Interfaces.Unsigned_64;
-
-
-
-   generic
-      type Data_Type is (<>);
-      type Data_Buffer is array (Natural range <>) of aliased Data_Type;
-      Check_Data_Coherence : Boolean := True;
-   procedure Read (From : in out Alsa_Device;
-                   Data : in out Data_Buffer)
-
-     with
-       Pre => Status (From) /= Closed,
-     Post => Status (From) = Running;
-
    function Max_Channels (Dev : Alsa_Device) return Positive
      with
        Pre => Status (Dev) /= Closed;
@@ -389,6 +350,50 @@ package Alsa is
                          Fmt : Data_Format)
      with Pre => Status (Dev) = Open,
      Post => Status (Dev) = Open;
+
+   procedure Start_Device (Dev : in out Alsa_Device)
+     with Pre => Status (Dev) = Open,
+     Post => Status (Dev) = Running;
+
+
+   type Buffer_Signed_8 is array (Natural range <>)
+     of aliased Interfaces.Integer_8;
+
+   type Buffer_Signed_16 is array (Natural range <>)
+     of aliased Interfaces.Integer_16;
+
+   type Buffer_Signed_32 is array (Natural range <>)
+     of aliased Interfaces.Integer_32;
+
+   type Buffer_Signed_64 is array (Natural range <>)
+     of aliased Interfaces.Integer_64;
+
+
+
+   type Buffer_Unsigned_8 is array (Natural range <>)
+     of aliased Interfaces.Unsigned_8;
+
+   type Buffer_Unsigned_16 is array (Natural range <>)
+     of aliased Interfaces.Unsigned_16;
+
+   type Buffer_Unsigned_32 is array (Natural range <>)
+     of aliased Interfaces.Unsigned_32;
+
+   type Buffer_Unsigned_64 is array (Natural range <>)
+     of aliased Interfaces.Unsigned_64;
+
+
+   generic
+      type Data_Type is (<>);
+      type Data_Buffer is array (Natural range <>) of aliased Data_Type;
+      Check_Data_Coherence : Boolean := True;
+   procedure Read (From : in out Alsa_Device;
+                   Data : in out Data_Buffer)
+
+     with
+       Pre => Status (From) /= Closed,
+     Post => Status (From) = Running;
+
 
    type Device_Attr is private;
 
