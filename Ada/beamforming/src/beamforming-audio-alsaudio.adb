@@ -1,29 +1,36 @@
 pragma Ada_2012;
+with Interfaces;
 with Beamforming.Generic_Data_Mover;
 
 package body Beamforming.Audio.Alsaudio is
 
-   pragma Linker_Options ("-lpulse");
-   pragma Linker_Options ("-lpulse-simple");
+   subtype Basic_Sample_Type is Interfaces.Integer_32;
+   subtype Basic_Buffer_Type is Alsa.Buffer_Signed_32;
 
-   type Frame_Block_Access is access Pulsada.Frame_Block;
+   type Basic_Buffer_Access is access Basic_Buffer_Type;
 
-   type Session_Internal is
+
+   type Alsa_Source  is
       record
-         Session    : Session_Access;
-         N_Channels : Pulsada.Channel_Index;
-         Buffer     : Frame_Block_Access;
+         Device     : Alsa_Device_Access;
+         N_Channels : Alsa.Channel_Count;
+         Buffer     : Basic_Buffer_Access;
          Gain       : Float;
       end record;
+
+   procedure Basic_Read is
+     new Alsa.Read (Data_Type            => Basic_Sample_Type,
+                    Data_Buffer          => Basic_Buffer_Type,
+                    Check_Data_Coherence => True);
 
    ----------
    -- Read --
    ----------
 
-   procedure Read (Source : in out Session_Internal;
+   procedure Read (Source : in out Alsa_Source;
                    Data   :    out Sample_Array)
    is
-      procedure Convert (Item : Pulsada.Frame;
+      procedure Convert (Item : Basic_Buffer_Type;
                          To   : out Sample_Array)
       is
          Cursor : Channel_Index := Channel_Index'First;
@@ -31,61 +38,67 @@ package body Beamforming.Audio.Alsaudio is
          To := (others => 0.0);
 
          for Sample of Item loop
-            To (Cursor) := Sample_Type (Source.Gain * Float (Sample) / Float (Pulsada.Sample_Type'Last));
+            To (Cursor) := Sample_Type
+              (Source.Gain * Float (Sample) / Float (Basic_Sample_Type'Last));
+
             Cursor := Channel_Index'Succ (Cursor);
          end loop;
       end Convert;
    begin
-      Pulsada.Thin.Read (Session => Source.Session.all,
-                         Data    => Source.Buffer.all);
+      Basic_Read (Source.Device.all, Source.Buffer.all);
 
-      Convert (Item => Source.Buffer.Get (1), To => Data);
+      Convert (Item => Source.Buffer.all, To => Data);
    end Read;
 
-   procedure Close (Source : in out Session_Internal) is null;
+   procedure Close (Source : in out Alsa_Source) is null;
 
 
-   package Pulse_Data_Mover is
-     new Generic_Data_Mover (Session_Internal);
+   package Alsa_Data_Mover is
+     new Generic_Data_Mover (Alsa_Source);
 
 
    ------------
    -- Create --
    ------------
 
-   function Create (N_Channels : Channel_Index)
-                   return Alsa_Handler
+   function Create (N_Channels         : Channel_Index;
+                    Device_Name        : String;
+                    Sampling_Frequency : float)
+                    return Alsa_Handler
    is
    begin
-      return Alsa_Handler'(Session    => new Pulsada.Thin.Session_Type,
-                           N_Channels => N_Channels);
+      return Dev : Alsa_Handler := Alsa_Handler'(Device     => new Alsa.Alsa_Device,
+                                                 N_Channels => Alsa.Channel_Count (N_Channels),
+                                                 Rate       => Alsa.Sampling_Rate (Sampling_Frequency))
+      do
+         Alsa.Open (Dev       => Dev.Device.all,
+                    Name      => Alsa.Device_Name (Device_Name),
+                    Direction => Alsa.Capture);
+
+
+         Alsa.Set_Rate (Dev.Device.all, Dev.Rate);
+
+         Alsa.Set_Access (Dev.Device.all, Alsa.Rw_Interleaved);
+         Alsa.Set_N_Channels (Dev.Device.all, Dev.N_Channels);
+         Alsa.Set_Format (Dev.Device.all, Alsa.Signed_32_Native);
+      end return;
    end Create;
 
    -----------
    -- Start --
    -----------
 
-   procedure Start
-     (Handler            : in out Alsa_Handler;
-      Sampling_Frequency : Long_Float)
+   procedure Start (Handler : in out Alsa_Handler)
    is
-      use Pulsada;
-
-      N_Channels : constant Pulsada.Channel_Index :=
-                     Pulsada.Channel_Index (Handler.N_Channels);
-
-      N_Frames : constant Pulsada.Frame_Counter := 1;
+      N_Frames : constant  := 1;
    begin
-      Pulsada.Thin.Open (Session          => Handler.Session.all,
-                         Rate             => Pulsada.Sampling_Frequency (Sampling_Frequency),
-                         N_Channels       => N_Channels);
+      Alsa_Data_Mover.Data_Mover.Start
+        (Alsa_Source'(Device     => Handler.Device,
+                      N_Channels => Handler.N_Channels,
+                      Buffer     =>
+                         new Basic_Buffer_Type (1 .. N_Frames * Integer (Handler.N_Channels)),
+                      Gain       => 1.0));
 
-      Pulse_Data_Mover.Data_Mover.Start
-        (Session_Internal'(Session    => Handler.Session,
-                           N_Channels => N_Channels,
-                           Gain       => 1.0,
-                           Buffer     =>
-                              new Frame_Block' (New_Block (N_Channels, N_Frames))));
    end Start;
 
    ---------------

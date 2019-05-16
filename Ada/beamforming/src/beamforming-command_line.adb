@@ -224,4 +224,8 @@ package body Beamforming.Command_Line is
    function Signal_Freq return Float
    is (Float (Signal_Frequency_Hz));
 
+
+   function Device_Name return String
+   is ("hw:CARD=UMC1820,DEV=0");
+
 end Beamforming.Command_Line;

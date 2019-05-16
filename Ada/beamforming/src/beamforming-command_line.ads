@@ -25,5 +25,7 @@ package Beamforming.Command_Line is
 
    function Signal_Freq return Float;
 
+   function Device_Name return String;
+
    Parsing_Error : exception;
 end Beamforming.Command_Line;

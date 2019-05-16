@@ -8,7 +8,7 @@ with Gnoga.Gui.Window;
 
 with Beamforming.Controller;
 with Beamforming.Command_Line;
-with Beamforming.Audio.Pulse;
+with Beamforming.Audio.Alsaudio;
 with Beamforming.Internal_State;
 with Beamforming.Updaters;
 with Beamforming.Debug;
@@ -40,7 +40,6 @@ procedure Beamforming.Main is
    
    use type Beamforming.Command_Line.Action_Type;
    
-   Audio_Handler : Audio.Pulse.Pulse_Handler := Audio.Pulse.Create (N_Channels => 6);
 begin
    Utilities.Task_Reaper.Install_Reaper;
    
@@ -52,25 +51,34 @@ begin
          raise Program_Error; -- We should never arrive here
          
       when Command_Line.Dump =>
-         Put_Line (Standard_Error, Audio_Handler.Dump_Info);
+         raise Program_Error; -- We should never arrive here
+--           Put_Line (Standard_Error, Audio_Handler.Dump_Info);
         
          
       when Command_Line.Run =>    
-         Internal_State.Load_Weights (Command_Line.Beamformer_File);
+         declare
+            Audio_Handler : Audio.Alsaudio.Alsa_Handler := 
+                              Audio.Alsaudio.Create 
+                                (N_Channels         => Command_Line.Last_Channel, 
+                                 Device_Name        => Command_Line.Device_Name,
+                                 Sampling_Frequency => Command_Line.Sampling_Frequency);
+         begin 
+            Internal_State.Load_Weights (Command_Line.Beamformer_File);
          
          --Weights.Load (Table    => Internal_State.Angle_To_Weights,
            --            Filename => ;
          
          
-         Internal_State.Set_Weights (Angle => 0.0);
+            Internal_State.Set_Weights (Angle => 0.0);
          
-         Init_Gui;
+            Init_Gui;
          
          
-         Audio_Handler.Start (Long_Float (Command_Line.Sampling_Frequency));
-         Updaters.Updater_Task.Start;   
+            Audio_Handler.Start;
+            Updaters.Updater_Task.Start;   
            
-         Gnoga.Application.Singleton.Message_Loop;            
+            Gnoga.Application.Singleton.Message_Loop;  
+         end;
    end case;
    
    Beamforming.Debug.Dump;

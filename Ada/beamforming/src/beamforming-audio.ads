@@ -4,8 +4,7 @@
 package Beamforming.Audio is
    type Audio_Handler is limited interface;
 
-   procedure Start (Handler            : in out Audio_Handler;
-                    Sampling_Frequency : Long_Float)
+   procedure Start (Handler : in out Audio_Handler)
    is abstract;
 
    function Dump_Info
