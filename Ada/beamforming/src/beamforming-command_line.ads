@@ -17,7 +17,7 @@ package Beamforming.Command_Line is
    function Last_Channel return Channel_Index
      with Pre => Action_Required = Run;
 
-   function Sampling_Frequency return Float;
+   function Sampling_Frequency return Positive;
 
    function Beamformer_File return String;
 

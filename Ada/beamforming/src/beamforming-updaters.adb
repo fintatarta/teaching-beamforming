@@ -57,7 +57,7 @@ package body Beamforming.Updaters is
       end select;
 
       Bandpass.Set (Notch_Specs
-                    (Freq        => Command_Line.Signal_Freq / Command_Line.Sampling_Frequency,
+                    (Freq        => Command_Line.Signal_Freq / Float (Command_Line.Sampling_Frequency),
                      Pole_Radius => 0.99,
                      Class       => Passband));
 

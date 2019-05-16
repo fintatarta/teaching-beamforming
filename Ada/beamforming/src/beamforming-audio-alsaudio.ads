@@ -3,10 +3,15 @@ with Alsa;
 package Beamforming.Audio.Alsaudio is
    type Alsa_Handler (<>)  is limited new Audio_Handler with private;
 
-   function Create (N_Channels         : Channel_Index;
-                    Device_Name        : String;
-                    Sampling_Frequency : float)
+   function Create (Device_Name : String)
                     return Alsa_Handler;
+
+   procedure Set_N_Channels (Handler    : in out Alsa_Handler;
+                             N_Channels : in out Channel_Index);
+
+   procedure Set_Sampling_Freq (Handler : in out Alsa_Handler;
+                                Freq    : in out Positive);
+
 
    procedure Start (Handler : in out Alsa_Handler);
 

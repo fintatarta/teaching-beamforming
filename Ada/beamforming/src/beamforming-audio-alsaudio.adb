@@ -61,28 +61,46 @@ package body Beamforming.Audio.Alsaudio is
    -- Create --
    ------------
 
-   function Create (N_Channels         : Channel_Index;
-                    Device_Name        : String;
-                    Sampling_Frequency : float)
+   function Create (Device_Name : String)
                     return Alsa_Handler
    is
    begin
-      return Dev : Alsa_Handler := Alsa_Handler'(Device     => new Alsa.Alsa_Device,
-                                                 N_Channels => Alsa.Channel_Count (N_Channels),
-                                                 Rate       => Alsa.Sampling_Rate (Sampling_Frequency))
+      return Dev : constant Alsa_Handler :=
+        Alsa_Handler'(Device     => new Alsa.Alsa_Device,
+                      N_Channels => 2,
+                      Rate       => 44100)
       do
          Alsa.Open (Dev       => Dev.Device.all,
                     Name      => Alsa.Device_Name (Device_Name),
                     Direction => Alsa.Capture);
 
 
-         Alsa.Set_Rate (Dev.Device.all, Dev.Rate);
-
          Alsa.Set_Access (Dev.Device.all, Alsa.Rw_Interleaved);
-         Alsa.Set_N_Channels (Dev.Device.all, Dev.N_Channels);
          Alsa.Set_Format (Dev.Device.all, Alsa.Signed_32_Native);
       end return;
    end Create;
+
+   procedure Set_N_Channels (Handler    : in out Alsa_Handler;
+                             N_Channels : in out Channel_Index)
+   is
+   begin
+      Handler.N_Channels := Alsa.Channel_Count (N_Channels);
+      Alsa.Set_N_Channels (Handler.Device.all, Handler.N_Channels);
+
+      N_Channels := Channel_Index (Handler.N_Channels);
+   end Set_N_Channels;
+
+   procedure Set_Sampling_Freq (Handler : in out Alsa_Handler;
+                                Freq    : in out Positive)
+   is
+   begin
+      Handler.Rate := Alsa.Sampling_Rate (Freq);
+
+      Alsa.Set_Rate (Handler.Device.all, Handler.Rate);
+      Freq := Positive (Handler.Rate);
+   end Set_Sampling_Freq;
+
+
 
    -----------
    -- Start --
