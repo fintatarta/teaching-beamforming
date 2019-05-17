@@ -1,4 +1,5 @@
 with Beamforming.Weights;
+with Dsp;
 
 package Beamforming.Command_Line is
    type Action_Type is (Unknown, Run, Dump);
@@ -26,6 +27,8 @@ package Beamforming.Command_Line is
    function Signal_Freq return Float;
 
    function Device_Name return String;
+
+   Pole_Radius : constant Dsp.Stable_Radius := 0.99;
 
    Parsing_Error : exception;
 end Beamforming.Command_Line;

@@ -1,5 +1,5 @@
 with "gnoga";
-with "Pulsada/pulsada";
+--  with "Pulsada/pulsada";
 with "Tokenizer/tokenizer";
 with "AlsaAda/alsada.gpr";
 with "DSP/generic_dsp.gpr";

@@ -58,7 +58,7 @@ package body Beamforming.Updaters is
 
       Bandpass.Set (Notch_Specs
                     (Freq        => Command_Line.Signal_Freq / Float (Command_Line.Sampling_Frequency),
-                     Pole_Radius => 0.99,
+                     Pole_Radius => Command_Line.Pole_Radius,
                      Class       => Passband));
 
       Next_Output_Time := Calendar.Clock;
