@@ -41,7 +41,9 @@ package body Beamforming.Audio.Alsaudio is
             To (Cursor) := Sample_Type
               (Source.Gain * Float (Sample) / Float (Basic_Sample_Type'Last));
 
-            Cursor := Channel_Index'Succ (Cursor);
+            if Cursor < Channel_Index'Last then
+               Cursor := Channel_Index'Succ (Cursor);
+            end if;
          end loop;
       end Convert;
    begin
